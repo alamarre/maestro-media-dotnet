@@ -76,4 +76,9 @@ public class Table<T> : ITable<T> where T : class
     {
          return await DbUtilities.UpsertAsync(_context, _dbSet, predicate, createOrUpdateTransform);
     }
+
+    Task<T?> ITable<T>.FindAsync(Expression<Func<T, bool>> predicate)
+    {
+        throw new NotImplementedException();
+    }
 }

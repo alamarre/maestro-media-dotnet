@@ -5,7 +5,7 @@ namespace Maestro.Controllers;
 public class PingController : IController {
     [AllowAnonymous]
     public static string Ping() {
-        return "Pong";
+        return "pong";
     }
     public void MapRoutes(IEndpointRouteBuilder routes) {
         routes.MapGet("/ping", Ping);

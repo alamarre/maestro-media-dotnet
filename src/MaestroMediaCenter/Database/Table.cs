@@ -7,7 +7,7 @@ namespace Maestro.Database;
 public class Table<T> : ITable<T> where T : class
 {
     private readonly IServiceScopeFactory scopeFactory;
-    AsyncLocal<PostgresDbContext> _contextHolder = new AsyncLocal<PostgresDbContext>();
+    private readonly AsyncLocal<PostgresDbContext> _contextHolder = new();
 
     private DbSet<T> _dbSet {
         get {
@@ -41,6 +41,11 @@ public class Table<T> : ITable<T> where T : class
     {
         _dbSet.RemoveRange(_dbSet.Where(predicate));
         await _context.SaveChangesAsync();
+    }
+
+    async Task<T?> ITable<T>.FindAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.FindAsync(predicate);
     }
 
     async Task<T?> ITable<T>.GetAsync(Expression<Func<T, bool>> predicate)

@@ -1,5 +1,6 @@
 namespace Maestro.Models;
 public enum VideoType {
-    Movies = 1,
-    TVShows = 2,
+    None = 0,
+    Movie = 1,
+    TvShow = 2,
 }

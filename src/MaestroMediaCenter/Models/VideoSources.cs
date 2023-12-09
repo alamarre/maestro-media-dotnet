@@ -4,10 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Maestro.Models;
 public record VideoSources {
     [Key]
-    public long VideoSourceId {get; set;}
+    public Guid VideoSourceId {get; set;}
+
+    [ForeignKey("VideoSourceRoots")]
+    public Guid VideoSourceRootId {get; set;}
 
     [ForeignKey("Videos")]
-    public long VideoId {get; set;}
+    public Guid VideoId {get; set;}
 
     public string? Source {get; set;}
 

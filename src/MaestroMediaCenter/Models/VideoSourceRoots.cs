@@ -1,10 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Models;
-public class VideoSourceRoots {
+
+[Index(
+    nameof(VideoSourceRootType), 
+    nameof(VideoSourceRootPath), 
+    IsUnique = true)]
+public record VideoSourceRoots {
     [Key]
-    public long VideoSourceRootId {get; set;}
+    public Guid VideoSourceRootId {get; set;}
 
     public string? VideoSourceRootPath {get; set;}
 

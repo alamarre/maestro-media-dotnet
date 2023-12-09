@@ -11,11 +11,11 @@ public class VideosController : IController {
     }
     public async Task<Videos> Root() {
 
-        var result =await _videos.UpsertAsync(
+        var result = await _videos.UpsertAsync(
             video => video.Name == "Test Video 2", 
             video => {
                 var x = video with { 
-                    VideoType = VideoType.TVShows,
+                    VideoType = VideoType.TvShow,
                     Name = "Test Video 2" 
                 };
                 var y = x == video;

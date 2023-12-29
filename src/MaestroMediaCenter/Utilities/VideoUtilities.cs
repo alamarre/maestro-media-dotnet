@@ -1,25 +1,36 @@
-﻿namespace MaestroMediaCenter;
+﻿using Maestro.Models;
+
+namespace Maestro.Utilities;
 
 
 public interface IVideoInfo
 {
     string? Path { get; }
-    string? Type {get;}
+    string? TypeName {get;}
+
+    string Name { get; }
+
+    VideoType VideoType { get; }
 }
 
 public record MovieInfo : IVideoInfo
 {
     public string? Path { get; init; }
-    public string? Type { get; init; }
+    public string? TypeName => "movie";
 
-    public string? Name {get; init;}
+    public VideoType VideoType => VideoType.Movie;
+
+    public required string Name {get; init;}
 }
 
 public record TvShowInfo : IVideoInfo
 {
+    public VideoType VideoType => VideoType.TvShow;
     public string? Path { get; init; }
-    public string? Type { get; init; }
-    public string? ShowName { get; init; }
+    public string? TypeName => "tv";
+    public required string ShowName { get; init; }
+
+    public string Name => ShowName;
     public string? Season { get; init; }
     public string? Episode { get; init; }
 }
@@ -33,7 +44,7 @@ public class VideoUtilities
             path = path.Substring(1);
         }
 
-        IVideoInfo videoInfo;
+        IVideoInfo? videoInfo;
 
         var videoType = type.ToLower();
         if (videoType == "movie")

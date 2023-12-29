@@ -6,7 +6,7 @@ namespace Maestro.Database.Utilities;
 public static class DbUtilities {
 
      public static async Task<T> GetOrCreateAsync<T>(
-        PostgresDbContext context, 
+        DbContext context, 
         Func<Task<T>> getQuery, 
         Func<Task> createQueries) {
         return await GetOrCreateAsync(context, getQuery, async () => {
@@ -15,7 +15,7 @@ public static class DbUtilities {
         });
      }
     public static async Task<T> GetOrCreateAsync<T>(
-        PostgresDbContext context, 
+        DbContext context, 
         Func<Task<T>> getQuery, 
         Func<Task<T>> createQueries)
     {
@@ -63,7 +63,7 @@ public static class DbUtilities {
     }
 
      public static async Task<T> GetOrCreateAsync<T>(
-        PostgresDbContext context, 
+        DbContext context, 
         DbSet<T> dbSet,
         Expression<Func<T, bool>> getQuery, 
         Func<T, T> createOrUpdateTransform)
@@ -115,7 +115,7 @@ public static class DbUtilities {
 
 
     public static async Task<T> UpsertAsync<T>(
-        PostgresDbContext context, 
+        DbContext context, 
         DbSet<T> dbSet,
         Expression<Func<T, bool>> getQuery, 
         Func<T, T> createOrUpdateTransform)

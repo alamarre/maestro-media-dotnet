@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaestroMediaCenter", "MaestroMediaCenter\MaestroMediaCenter.csproj", "{CF507CBB-3E64-4B5E-811A-C111D6D648D1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web.Api.Tests", "Maestro.Web.Api.Tests\Maestro.Web.Api.Tests.csproj", "{618804AB-B151-4439-B23E-2C6BCC0E5C1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{CF507CBB-3E64-4B5E-811A-C111D6D648D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF507CBB-3E64-4B5E-811A-C111D6D648D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF507CBB-3E64-4B5E-811A-C111D6D648D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{618804AB-B151-4439-B23E-2C6BCC0E5C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{618804AB-B151-4439-B23E-2C6BCC0E5C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{618804AB-B151-4439-B23E-2C6BCC0E5C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{618804AB-B151-4439-B23E-2C6BCC0E5C1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

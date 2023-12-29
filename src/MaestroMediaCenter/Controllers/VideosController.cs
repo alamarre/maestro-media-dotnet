@@ -1,29 +1,16 @@
 using Maestro.Database;
 using Maestro.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Controllers;
 
-public class VideosController : IController {
-    private readonly ITable<Videos> _videos;
+public class VideosController(IDbContextFactory<MediaDbContext> dbContextFactory) : IController {
 
-    public VideosController(ITable<Videos> videos) {
-        _videos = videos;
-    }
     public async Task<Videos> Root() {
+        using var db = await dbContextFactory.CreateDbContextAsync();
+        var result = await db.Videos.FirstOrDefaultAsync(x => x.VideoId == Guid.Empty);
 
-        var result = await _videos.UpsertAsync(
-            video => video.Name == "Test Video 2", 
-            video => {
-                var x = video with { 
-                    VideoType = VideoType.TvShow,
-                    Name = "Test Video 2" 
-                };
-                var y = x == video;
-                return x;
-            }
-        );
-
-        return result;
+        return result!;
     }
 
     void IController.MapRoutes(IEndpointRouteBuilder routes)

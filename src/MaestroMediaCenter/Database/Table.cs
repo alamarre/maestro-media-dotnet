@@ -7,7 +7,7 @@ namespace Maestro.Database;
 public class Table<T> : ITable<T> where T : class
 {
     private readonly IServiceScopeFactory scopeFactory;
-    private readonly AsyncLocal<PostgresDbContext> _contextHolder = new();
+    private readonly AsyncLocal<MediaDbContext> _contextHolder = new();
 
     private DbSet<T> _dbSet {
         get {
@@ -15,11 +15,11 @@ public class Table<T> : ITable<T> where T : class
         }
     }
 
-    private PostgresDbContext _context {
+    private MediaDbContext _context {
         get {         
             if(_contextHolder.Value == null) {
                 var scope = scopeFactory.CreateScope();
-                _contextHolder.Value = scope.ServiceProvider.GetRequiredService<PostgresDbContext>();
+                _contextHolder.Value = scope.ServiceProvider.GetRequiredService<MediaDbContext>();
             }
             return _contextHolder.Value;
         }
@@ -80,10 +80,5 @@ public class Table<T> : ITable<T> where T : class
     async Task<T> ITable<T>.UpsertAsync(Expression<Func<T, bool>> predicate, Func<T, T> createOrUpdateTransform)
     {
          return await DbUtilities.UpsertAsync(_context, _dbSet, predicate, createOrUpdateTransform);
-    }
-
-    Task<T?> ITable<T>.FindAsync(Expression<Func<T, bool>> predicate)
-    {
-        throw new NotImplementedException();
     }
 }

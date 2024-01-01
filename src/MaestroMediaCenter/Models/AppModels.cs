@@ -61,12 +61,29 @@ public record VideoSourceRoots : TenantTable {
     public VideoSourceLocationType VideoSourceLocationType {get; set;}
 }
 
+[Index("VideoSourceRootId", "Port", IsUnique = true)]
+public record VideoServerAlternates : TenantTable {
+    [Key]
+    public Guid VideoServerAlternateId {get; set;}
+    public Guid VideoSourceRootId {get; set;}
+    public int Port {get; set;}
+    public required string Hostname {get; set;}
+}
+
 [Index(nameof(AddedDate), nameof(VideoType))]
+[Index(nameof(VideoName), nameof(VideoType), nameof(Season), nameof(Episode), IsUnique = true)]
 public record Videos : TenantTable {
     [Key]
     public Guid VideoId {get; set;}
     public required string VideoName {get; set;}
+
+    // name of episode for instance
+    public string? Subname {get; set;}
     public required VideoType VideoType {get; set;}
+
+    // These could be replaced with a JSON object or another table in the future, but this is simpler for now
+    public int? Season {get; set;}
+    public int? Episode {get; set;}
 
     public DateTime AddedDate { get; set; }
 }
@@ -76,6 +93,8 @@ public record VideoSources : TenantTable {
     public Guid VideoSourceId {get; set;}
     [ForeignKey(nameof(VideoSourceRoots))]
     public Guid VideoSourceRootId {get; set;}
+
+    public VideoSourceRoots? VideoSourceRoot {get; set;}
     [ForeignKey(nameof(Videos))]
     public Guid VideoId {get; set;}
     public required string Source {get; set;}
@@ -86,10 +105,15 @@ public record VideoSources : TenantTable {
 public record WatchProgress : TenantTable {
     [ForeignKey(nameof(Videos))]
     public Guid VideoId {get; set;}
+
+    public Videos? Video {get; set;}
     [ForeignKey(nameof(Profiles))]
     public Guid ProfileId {get; set;}
-    public int ProgressInMilliseconds {get; set;}
+    public int ProgressInSeconds {get; set;}
+    public required string Status {get; set;}
     public DateTime LastWatched {get; set;}
+
+    public DateTime Expires {get; set;}
 }
 
 public record AccountUsers : TenantTable {
@@ -105,7 +129,6 @@ public record AccountEmails : TenantTable {
     public Guid UserId {get; set;}
 
     public required string EmailAddress {get; set;}
-
 }
 
 public record AccountLogins : TenantTable {
@@ -136,6 +159,8 @@ public record VideoCollections : TenantTable {
 
     public DateTime StartDate {get; set;}
     public DateTime EndDate {get; set;}
+
+    public List<VideoCollectionItems> VideoCollectionItems {get; set;} = new List<VideoCollectionItems>();
 }
 
 public record VideoCollectionItems : TenantTable {
@@ -145,5 +170,7 @@ public record VideoCollectionItems : TenantTable {
     public Guid VideoCollectionId {get; set;}
     [ForeignKey(nameof(Videos))]
     public Guid VideoId {get; set;}
-    public int Order {get; set;}
+
+    public Videos? Video {get; set;}
+
 }

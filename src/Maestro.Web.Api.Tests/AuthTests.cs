@@ -3,14 +3,14 @@ namespace Maestro.Web.Api.Tests;
 using System.Net;
 using FluentAssertions;
 using Maestro.Controllers;
+using NUnit.Framework;
 
-[Collection("Database collection")]
-public class AuthTests(AppFixture app)
+public class AuthTests
 {
-    [Fact]
+    [Test]
     public async Task Login_InvalidCredentials_ReturnsUnauthorized()
     {
-        var result = await app.UnathenticatedClient.PostAsJsonAsync("/login", new {
+        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login", new {
             Username = "fakeuser",
             Password = "fakepassword",
             TenantId = Guid.NewGuid()
@@ -19,10 +19,10 @@ public class AuthTests(AppFixture app)
         result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Test]
     public async Task Login_WrongTenantId_ReturnsUnauthorized()
     {
-        var result = await app.UnathenticatedClient.PostAsJsonAsync("/login", new {
+        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login", new {
             Username = "fakeadmin",
             Password = "fakepassword",
             TenantId = Guid.NewGuid()
@@ -31,13 +31,13 @@ public class AuthTests(AppFixture app)
         result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    [Fact]
+    [Test]
     public async Task Login_Correct_ReturnsValidToken()
     {
-        var result = await app.UnathenticatedClient.PostAsJsonAsync("/login", new {
+        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login", new {
             Username = "fakeadmin",
             Password = "fakepassword",
-            TenantId = app.ClientTenantId
+            TenantId = AppContext.ClientTenantId
         });
 
         result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -46,7 +46,7 @@ public class AuthTests(AppFixture app)
         token!.Token.Should().NotBeNullOrEmpty();
         token.TenantId.Should().NotBeEmpty();
         token.UserId.Should().NotBeEmpty();
-        token.TenantId.Should().Be(app.ClientTenantId);
-        token.UserId.Should().Be(app.ClientUserId);
+        token.TenantId.Should().Be(AppContext.ClientTenantId);
+        token.UserId.Should().Be(AppContext.ClientUserId);
     }
 }

@@ -1,20 +1,53 @@
 using Maestro.Database;
 using Maestro.Models;
+using Maestro.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Controllers;
 
-public class VideosController(IDbContextFactory<MediaDbContext> dbContextFactory) : IController {
+public class VideosController(VideoService videoService) : IController {
 
-    public async Task<Videos> Root() {
-        using var db = await dbContextFactory.CreateDbContextAsync();
-        var result = await db.Videos.FirstOrDefaultAsync(x => x.VideoId == Guid.Empty);
+    /// <summary>
+    /// This is probably deprecated, but it gets called
+    /// </summary>
+    /// <returns></returns>
+    public IResult Root() {
 
-        return result!;
+        const string result = """
+[
+    {
+        "path": "Movies",
+        "name": "Movies",
+        "index": true
+    },
+    {
+        "path": "TV Shows",
+        "name": "TV Shows",
+        "type": "TV",
+        "index": true
+    },
+    {
+        "name": "Movie Collections",
+        "type": "collection",
+        "path": ""
+    }
+]
+""";
+        return Results.Ok(result);
+    }
+
+    public async Task<IResult> GetCache() {
+        return Results.Ok(await videoService.GetCache());
+    }
+
+    public async Task<IResult> GetShowProgress() {
+        return Results.Ok(await videoService.GetCache());
     }
 
     void IController.MapRoutes(IEndpointRouteBuilder routes)
     {
-        routes.MapGet("/api/videos", Root);
+        routes.MapGet("/api/v1.0/folders/root", Root);
+        routes.MapGet("/api/v1.0/cache", GetCache);
+        routes.MapGet("/api/v1.0/shows/keep-watching", GetShowProgress);
     }
 }

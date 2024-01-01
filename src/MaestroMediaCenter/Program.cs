@@ -2,6 +2,8 @@ using Maestro;
 using Maestro.Auth;
 using Maestro.Controllers;
 using Maestro.Database;
+using Maestro.Services;
+using Maestro.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
@@ -87,10 +89,16 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 builder.Services.AddSingleton(typeof(ITable<>),typeof(Table<>));
 builder.Services.AddSingleton<LocalSecurityTokenValidator>();
+builder.Services.AddSingleton<ICacheService, DbCacheSerice>();
+
+builder.Services.AddSingleton<VideoService>();
+builder.Services.AddSingleton<VideoUtilities>();
 
 builder.Services.AddSingleton<IController, VideosController>();
 builder.Services.AddSingleton<IController, PingController>();
 builder.Services.AddSingleton<IController, LocalAuthController>();
+builder.Services.AddSingleton<IController, VideoSourcesController>();
+builder.Services.AddSingleton<IController, ServersController>();
 
 UserContextSetter setter = new UserContextSetter();
 builder.Services.AddSingleton<IUserContextSetter>(setter);
@@ -110,13 +118,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseUserContextProvider();
 
-
 foreach(var controller in app.Services.GetServices<IController>()) {
     controller.MapRoutes(app);
 }
 
 SampleController.MapRoutes(app);
-
 
 app.Run();
 

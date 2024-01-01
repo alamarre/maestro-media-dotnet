@@ -38,7 +38,7 @@ public class AppContext {
 
   
     [OneTimeSetUp]
-    async Task InitializeAsync()
+    public async Task InitializeAsync()
     {
         var container = new ContainerBuilder<PostgreSqlContainer>()
             .ConfigureDatabaseConfiguration("postgres", "postgres", "postgres")
@@ -114,9 +114,11 @@ public class AppContext {
     }
 
     [OneTimeTearDown]
-    async Task DisposeAsync()
+    public async Task DisposeAsync()
     {
         await Container!.StopAsync();
         App?.Dispose();
+        _adminClient?.Dispose();
+        _client?.Dispose();
     }
 }

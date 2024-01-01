@@ -23,6 +23,7 @@ public class MediaDbContext(DbContextOptions<MediaDbContext> options, IUserConte
 
     public required DbSet<Models.VideoCollections> VideoCollections { get; set; }
     public required DbSet<Models.VideoCollectionItems> VideoCollectionItems { get; set; }
+    public required DbSet<Models.VideoServerAlternates> VideoServerAlternates { get; set; }
 
     // this is scoped so it should have the tenant set
     public Guid? TenantId = userContextProvider.GetUserContext()?.TenantId;
@@ -46,6 +47,12 @@ public class MediaDbContext(DbContextOptions<MediaDbContext> options, IUserConte
         AddQueryFilter<AccountUsers>(modelBuilder);
         AddQueryFilter<Profiles>(modelBuilder);
         AddQueryFilter<Videos>(modelBuilder);
+        AddQueryFilter<VideoSources>(modelBuilder);
+        AddQueryFilter<VideoSourceRoots>(modelBuilder);
+        AddQueryFilter<WatchProgress>(modelBuilder);
+        AddQueryFilter<VideoCollections>(modelBuilder);
+        AddQueryFilter<VideoCollectionItems>(modelBuilder);
+        AddQueryFilter<VideoServerAlternates>(modelBuilder);
     }
 
     private void AddQueryFilter<T> (ModelBuilder modelBuilder) where T: TenantTable {

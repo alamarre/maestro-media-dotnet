@@ -1,66 +1,33 @@
 using Maestro.Database;
 using Maestro.Models;
+using Maestro.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Controllers;
 
-public class VideoSourcesController(IDbContextFactory<MediaDbContext> dbContextFactory) : IController {
+public class VideoSourcesController(VideoService videoService) : IController {
 
-    public async Task<Videos> AddSource(LocalVideoChange videoChange) {
-        
-        Guid newRootId = Guid.NewGuid();
-        using var db = await dbContextFactory.CreateDbContextAsync();
-        var root = await db.VideoSourceRoots.GetOrCreateAsync<VideoSourceRoots>(
-            db,
-            videoSourceRoot => videoSourceRoot.VideoSourceRootPath == videoChange.RootUrl,
-            (VideoSourceRoots root) => root with  {
-                VideoSourceRootId = newRootId,
-                VideoSourceRootPath = videoChange.RootUrl,
-                VideoSourceLocationType = VideoSourceLocationType.HttpSource
-            }
-        );
+    public async Task<IResult> AddSource(LocalVideoChange videoChange) {
+        VideoSources? response = await videoService.AddSource(videoChange);
 
-        if(newRootId == root.VideoSourceRootId) {
-            // new video source root created
+        if(response == null) {
+            return Results.Problem();
         }
-        string videoName = "extract this";
-        var videoType = VideoType.Movie;
-        Guid newVideoId = Guid.NewGuid();
+        return Results.Ok(response);
+    }
 
-        var video = await db.Videos.GetOrCreateAsync<Videos>(
-            db,
-            video => video.VideoName == videoName && video.VideoType == videoType,
-            (Videos video) => video with {
-                VideoId = newVideoId,
-                VideoType = videoType
-            }
-        );
-
-        if(video.VideoId == newVideoId) {
-            // new video created
+    public async Task<IResult> GetSources([FromQuery] string path) {
+        var sources = await videoService.GetSourcesFromPath(path);
+        if(sources == null) {
+            return Results.NotFound();
         }
-
-        var videoSource = await db.VideoSources.GetOrCreateAsync<VideoSources>(
-            db,
-            videoSource => videoSource.VideoSourceRootId == root.VideoSourceRootId && videoSource.VideoId == video.VideoId && videoSource.Source == videoChange.Path,
-            (videoSource) => videoSource with {
-                VideoSourceRootId = root.VideoSourceRootId,
-                VideoId = video.VideoId,
-                Source = videoChange.Path
-            }
-        );
-        /*await _videoSources.GetOrCreateAsync(
-            videoSource => videoSource.VideoSourceRootId == root.VideoSourceRootId && videoSource.VideoSourcePath == videoChange.VideoPath,
-            (videoSource) => videoSource with {
-                VideoSourceRootId = root.VideoSourceRootId
-            }
-        );*/
-        
-        return null!;
+        return Results.Ok(sources);
     }
 
     void IController.MapRoutes(IEndpointRouteBuilder routes)
     {
         routes.MapPost("/api/videos/sources", AddSource);
+        routes.MapGet("/api/v1.0/videos/sources", GetSources);
     }
 }

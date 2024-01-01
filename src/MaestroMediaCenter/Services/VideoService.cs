@@ -1,12 +1,73 @@
 using Maestro.Models;
 using Maestro.Utilities;
+using MaestroMediaCenter.Auth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Services;
 
-public class VideoService(IDbContextFactory<MediaDbContext> dbContextFactory, VideoUtilities videoUtilities) {
+public record ShowProgress(string show, string? season, string episode, string status, int progress, long expires);
 
+public record VideoSourcesResponse(List<string> Sources, List<string> Subtitles);
+
+public class VideoService(
+    IDbContextFactory<MediaDbContext> dbContextFactory,
+    VideoUtilities videoUtilities, 
+    ICacheService cacheService,
+    IUserProfileProvider userProfileProvider) {
+
+    public Task<VideoCache> GetCache() {
+        return cacheService.GetCacheAsync();
+    }
+
+    public async Task<VideoSourcesResponse?> GetSourcesFromPath(string path) {
+        using var db = await dbContextFactory.CreateDbContextAsync();
+        var videoInfo = videoUtilities.GetVideoInfo(path);
+
+        if(videoInfo == null) {
+            return null;
+        }
+
+        if(videoInfo.VideoType == VideoType.Movie) {
+            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == videoInfo.Name && v.VideoType == videoInfo.VideoType);
+            if(video == null) {
+                return null;
+            }
+
+            var sources = await db.VideoSources.Where(vs => vs.VideoId == video.VideoId).Include(v => v.VideoSourceRoot).ToListAsync();
+            var subtitles = sources.Where(s => s.Source.EndsWith(".vtt")).ToList();
+            sources = sources.Where(s => !s.Source.EndsWith(".vtt")).ToList();
+            var materializedSources = sources.Select(GetUri).ToList();
+
+            return new VideoSourcesResponse(materializedSources, subtitles.Select(GetUri).ToList());
+        }
+
+        if(videoInfo.VideoType == VideoType.TvShow && videoInfo is TvShowInfo tvShowInfo) {
+            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == tvShowInfo.ShowName 
+            && v.VideoType == videoInfo.VideoType
+            && v.Season == tvShowInfo.Season
+            && v.Episode == tvShowInfo.Episode);
+            if(video == null) {
+                return null;
+            }
+
+            var sources = await db.VideoSources.Where(vs => vs.VideoId == video.VideoId).Include(v => v.VideoSourceRoot).ToListAsync();
+            var subtitles = sources.Where(s => s.Source.EndsWith(".vtt")).ToList();
+            sources = sources.Where(s => !s.Source.EndsWith(".vtt")).ToList();
+            var materializedSources = sources.Select(GetUri).ToList();
+
+            return new VideoSourcesResponse(materializedSources, subtitles.Select(GetUri).ToList());
+        }
+        return null;
+    }
+
+    private string GetUri(VideoSources videoSources) {
+        if(Uri.TryCreate(new Uri(videoSources.VideoSourceRoot!.VideoSourceRootPath),  videoSources.Source,  out var result)) {
+            return result.ToString();
+        }
+
+        return "";
+    }
 
     public async Task<VideoSources?> AddSource(LocalVideoChange videoChange) {
         var videoInfo = videoUtilities.GetVideoInfo(videoChange.Path, videoChange.Type, videoChange.RootUrl);
@@ -35,6 +96,12 @@ public class VideoService(IDbContextFactory<MediaDbContext> dbContextFactory, Vi
                     VideoName = videoInfo.Name,
                     VideoType = videoInfo.VideoType
                 };
+
+                if(videoInfo.VideoType == VideoType.TvShow && videoInfo is TvShowInfo tvShowInfo) {
+                    video.Episode = tvShowInfo.Episode;
+                    video.Season = tvShowInfo.Season;
+                    video.Subname = tvShowInfo.Subname;
+                }
                 db.Videos.Add(video);
             }
 
@@ -54,55 +121,58 @@ public class VideoService(IDbContextFactory<MediaDbContext> dbContextFactory, Vi
 
         return videoSource;
     }
-    public async Task<VideoSources?> AddSourceOld(LocalVideoChange videoChange) {
-        Guid newRootId = Guid.NewGuid();
-        using var db = await dbContextFactory.CreateDbContextAsync();
 
-        var root = await db.VideoSourceRoots.GetOrCreateAsync<VideoSourceRoots>(
-            db,
-            videoSourceRoot => videoSourceRoot.VideoSourceRootPath == videoChange.RootUrl,
-            (VideoSourceRoots root) => root with  {
-                VideoSourceRootId = newRootId,
-                VideoSourceRootPath = videoChange.RootUrl,
-                VideoSourceLocationType = VideoSourceLocationType.HttpSource
+    public async Task<List<ShowProgress>> GetShowProgressesAsync(CancellationToken cancellationToken) {
+        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var result = await db.WatchProgress.Include(w => w.Video).ToListAsync(cancellationToken);
+
+        return result.Select(GetShowProgress).ToList();
+    }
+
+    public async Task SaveShowProgressAsync(ShowProgress progress, CancellationToken cancellationToken) {
+        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await db.ExecuteWithRetryAsync(async () => {
+
+            string show = progress.show;
+            VideoType videoType = VideoType.TvShow;
+            string? season = progress.season;
+            string episode = progress.episode;
+            if(show.StartsWith("movie_")) {
+                show = show.Substring(6);
+                videoType = VideoType.Movie;
+                episode = show;
             }
-        );
 
-        if(newRootId == root.VideoSourceRootId) {
-            // new video source root created
-        }
-        var videoInfo = videoUtilities.GetVideoInfo(videoChange.Path, videoChange.Type, videoChange.RootUrl);
-        if(videoInfo == null) {
-            return null;
-        }
-        string videoName = videoInfo.Name;
-        var videoType = VideoType.Movie;
-        Guid newVideoId = Guid.NewGuid();
-
-        var video = await db.Videos.GetOrCreateAsync<Videos>(
-            db,
-            video => video.VideoName == videoName && video.VideoType == videoType,
-            (Videos video) => video with {
-                VideoId = newVideoId,
-                VideoType = videoType
+            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == show && v.VideoType == videoType, cancellationToken);
+            if(video == null) {
+                return;
             }
-        );
 
-        if(video.VideoId == newVideoId) {
-            // new video created
-        }
-
-        var videoSource = await db.VideoSources.GetOrCreateAsync<VideoSources>(
-            db,
-            videoSource => videoSource.VideoSourceRootId == root.VideoSourceRootId && videoSource.VideoId == video.VideoId && videoSource.Source == videoChange.Path,
-            (videoSource) => videoSource with {
-                VideoSourceRootId = root.VideoSourceRootId,
-                VideoId = video.VideoId,
-                Source = videoChange.Path
+            var profile = await userProfileProvider.GetUserProfileAsync(cancellationToken);
+            var watchProgress = await db.WatchProgress.FirstOrDefaultAsync(w => w.VideoId == video.VideoId && w.ProfileId == progress.profileId, cancellationToken);
+            if(watchProgress == null) {
+                watchProgress = new WatchProgress {
+                    VideoId = video.VideoId,
+                    ProfileId = profile!.ProfileId,
+                    ProgressInSeconds = progress.progress,
+                    Status = progress.status,
+                    Expires = new DateTime(progress.expires)
+                };
+                db.WatchProgress.Add(watchProgress);
+            } else {
+                watchProgress.ProgressInSeconds = progress.progress;
+                watchProgress.Status = progress.status;
+                watchProgress.Expires = new DateTime(progress.expires);
             }
-        );
+        });
+    }
 
-        return videoSource;
+    private ShowProgress GetShowProgress(WatchProgress watchProgress) {
+        if(watchProgress.Video!.VideoType == VideoType.TvShow) {
+            return new ShowProgress(watchProgress.Video.VideoName, watchProgress.Video.Season.ToString(), watchProgress.Video.Episode.ToString(), ç, watchProgress.ProgressInSeconds, watchProgress.Expires.Ticks);
+        }
+        string moviePath = $"Movies/{watchProgress.Video.VideoName}";
+        return new ShowProgress($"movie_{moviePath}", null, moviePath, watchProgress.Status, watchProgress.ProgressInSeconds, watchProgress.Expires.Ticks)
     }
  
 }

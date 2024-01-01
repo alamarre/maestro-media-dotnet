@@ -1,13 +1,24 @@
+using System.Net;
+using FluentAssertions;
+using NUnit.Framework;
+
 namespace Maestro.Web.Api.Tests;
 
-[Collection("Database collection")]
-public class UnitTest1(AppFixture dbFixture)
+public class BasicTests
 {
-    [Fact]
-    public async Task PingTeest()
+    [Test]
+    public async Task Ping_Call_ReturnsPong()
     {
-        var result = await dbFixture.Client.GetAsync("/ping");
+        var result = await AppContext.Client.GetAsync("/ping");
         result.EnsureSuccessStatusCode();
-        Assert.Equal("pong", await result.Content.ReadAsStringAsync());
+        var responseBody = await result.Content.ReadAsStringAsync();
+        responseBody.Should().Be("pong");
+    }
+
+    [Test]
+    public async Task Pong_FakeUrl_Returns404()
+    {
+        var result = await AppContext.Client.GetAsync("/pong");
+        result.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

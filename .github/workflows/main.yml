@@ -1,0 +1,35 @@
+name: Main
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, closed]
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Upload to Amazon S3
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::990455710365:role/github-actions-Role-4CtDOaS7TEJR
+        aws-region: us-east-1
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0'
+    - name: Restore dependencies
+      run: dotnet restore src/MaestroMediaCenter.sln
+    - name: Build
+      run: dotnet build src/MaestroMediaCenter.sln --configuration Release --no-restore
+    - name: Test
+      run: dotnet test src/MaestroMediaCenter.sln --no-restore --verbosity normal

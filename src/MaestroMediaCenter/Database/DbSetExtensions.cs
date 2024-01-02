@@ -11,8 +11,8 @@ public static class DbSetExtensions {
                 using (var transaction = await context.Database.BeginTransactionAsync(cancellationToken))
                 {
                     await operation();
-                    await transaction.CommitAsync(cancellationToken);
                     await context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
                     break; // Break from the loop on success
                 }
             }

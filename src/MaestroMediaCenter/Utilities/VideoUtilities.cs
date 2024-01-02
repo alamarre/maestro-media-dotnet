@@ -167,13 +167,23 @@ public class VideoUtilities
         return null;
     }
 
-    public static long? ParseYear(string input)
+    public static int? ParseYear(string input)
     {
         Match match = yearPattern.Match(input);
         if (match.Success && match.Groups.Count == 3 
-            && long.TryParse(match.Groups[2].Value, out long year))
+            && int.TryParse(match.Groups[2].Value, out int year))
         {
             return year;
+        }
+        return null;
+    }
+
+    public static (string, int)? GetBaseNameAndYear(string input) {
+        Match match = yearPattern.Match(input);
+        if (match.Success && match.Groups.Count == 3
+        && int.TryParse(match.Groups[2].Value, out int year))
+        {
+            return (match.Groups[1].Value, year);
         }
         return null;
     }

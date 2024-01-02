@@ -1,4 +1,5 @@
 using Maestro.Entities;
+using Maestro.Events;
 using Maestro.Models;
 using Maestro.Utilities;
 using MaestroMediaCenter.Auth;
@@ -13,6 +14,7 @@ public class VideoService(
     IDbContextFactory<MediaDbContext> dbContextFactory,
     VideoUtilities videoUtilities, 
     ICacheService cacheService,
+    ITransactionalOutboxEventProducer eventProducer,
     IUserProfileProvider userProfileProvider) {
 
     public Task<VideoCache> GetCache() {
@@ -68,7 +70,7 @@ public class VideoService(
         return "";
     }
 
-    public async Task<VideoSource?> AddSource(LocalVideoChange videoChange) {
+    public async Task<VideoSource?> AddSource(LocalVideoChange videoChange, CancellationToken cancellationToken = default) {
         var videoInfo = videoUtilities.GetVideoInfo(videoChange.Path, videoChange.Type, videoChange.RootUrl);
         if(videoInfo == null) {
             return null;
@@ -102,6 +104,8 @@ public class VideoService(
                     video.Subname = tvShowInfo.Subname;
                 }
                 db.Video.Add(video);
+
+                await eventProducer.Produce(new VideoCreated(video.VideoId), db, cancellationToken);
             }
 
             videoSource = await db.VideoSource.FirstOrDefaultAsync(vs => 

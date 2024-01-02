@@ -1,10 +1,12 @@
 using Maestro.Auth;
+using Maestro.Events;
 using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Entities;
 public partial class MediaDbContext(
     DbContextOptions<MediaDbContext> options, 
-    IUserContextProvider userContextProvider) : DbContext(options) {
+    IUserContextProvider userContextProvider,
+    IOutboxEventPublisher eventPublisher) : DbContext(options) {
     // this is scoped so it should have the tenant set
     public Guid? TenantId = userContextProvider.GetUserContext()?.TenantId;
     
@@ -45,7 +47,25 @@ public partial class MediaDbContext(
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         SetTenantIdForAddedEntities();
-        return await base.SaveChangesAsync(cancellationToken);
+        
+        List<OutboxEvent>? outboxEvents = null;
+        if (this.Database.CurrentTransaction != null)
+        {
+            outboxEvents = ChangeTracker
+                .Entries<OutboxEvent>()
+                .Where(e => e.State == EntityState.Added)
+                .Select(e => e.Entity)
+                .ToList();
+            
+        }
+        int result = await base.SaveChangesAsync(cancellationToken);
+
+        if(outboxEvents != null && this.Database.CurrentTransaction != null) {
+            await this.Database.CurrentTransaction.CommitAsync(cancellationToken);
+
+            await eventPublisher.Publish(outboxEvents, cancellationToken);
+        }
+        return result;
     }
 
     private void SetTenantIdForAddedEntities()

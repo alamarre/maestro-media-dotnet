@@ -2,7 +2,11 @@ using Maestro;
 using Maestro.Auth;
 using Maestro.Controllers;
 using Maestro.Entities;
+using Maestro.Events;
+using Maestro.Events.Handlers;
+using Maestro.Options;
 using Maestro.Services;
+using Maestro.Services.Background;
 using Maestro.Utilities;
 using MaestroMediaCenter.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -54,27 +58,27 @@ builder.Services.AddSwaggerGen(options => {
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer("self", options => {
-           options.SecurityTokenValidators.Clear();
-           options.SecurityTokenValidators.Add( new LocalSecurityTokenValidator());
-        })
-        .AddJwtBearer("external", options =>
+    .AddJwtBearer("self", options => {
+        options.SecurityTokenValidators.Clear();
+        options.SecurityTokenValidators.Add( new LocalSecurityTokenValidator());
+    })
+    .AddJwtBearer("external", options =>
+    {
+        /*options.Authority = "https://your-auth-server.com"; // Your auth server URL
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            /*options.Authority = "https://your-auth-server.com"; // Your auth server URL
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidIssuer = "https://your-auth-server.com", // Your auth server URL
-                ValidAudience = "your-api-audience", // Your API audience identifier
-                ValidateLifetime = true
-            };
-            options.ConfigurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
-                $"{options.Authority}/.well-known/jwks_uri", // Your custom JWKS endpoint
-                new OpenIdConnectConfigurationRetriever()
-            );*/
-        });
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = "https://your-auth-server.com", // Your auth server URL
+            ValidAudience = "your-api-audience", // Your API audience identifier
+            ValidateLifetime = true
+        };
+        options.ConfigurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+            $"{options.Authority}/.well-known/jwks_uri", // Your custom JWKS endpoint
+            new OpenIdConnectConfigurationRetriever()
+        );*/
+    });
 
 builder.Services.AddAuthorization(options => {
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -91,17 +95,22 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddSingleton<LocalSecurityTokenValidator>();
 builder.Services.AddSingleton<ICacheService, DbCacheSerice>();
 
+builder.Services.AddSingleton<ITransactionalOutboxEventProducer, TransactionalOutboxEventProducer>();
+builder.Services.AddSingleton<IOutboxEventPublisher, OutboxEventPublisher>();
+
+
+
 builder.Services.AddSingleton<ProfileService>();
 
 builder.Services.AddSingleton<VideoService>();
 builder.Services.AddSingleton<VideoUtilities>();
 
+builder.Services.AddSingleton<IMetadataService, MetadataService>();
+
 new AutoControllers().MapControllers(builder.Services);
-/*builder.Services.AddSingleton<IController, VideosController>();
-builder.Services.AddSingleton<IController, PingController>();
-builder.Services.AddSingleton<IController, LocalAuthController>();
-builder.Services.AddSingleton<IController, VideoSourcesController>();
-builder.Services.AddSingleton<IController, ServersController>();*/
+AutoEventHandlerMapping.MapEventHandlers(builder.Services);
+
+builder.Services.Configure<MetadataOptions>(builder.Configuration.GetSection(MetadataOptions.SectionName));
 
 UserContextSetter setter = new UserContextSetter();
 builder.Services.AddSingleton<IUserContextSetter>(setter);
@@ -111,6 +120,14 @@ builder.Services.AddSingleton<IUserProfileProvider, UserProfileProvider>();
 
 builder.Services.AddHttpContextAccessor();
 
+// local only, improve later
+
+builder.Services.AddSingleton<IEventPublisher, InMemoryEventPublisher>();
+builder.Services.AddSingleton<IEventReceiver>(serviceProvider => 
+            (InMemoryEventPublisher)serviceProvider.GetRequiredService<IEventPublisher>()  );
+builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
+builder.Services.AddHostedService<QueueWatchingService>();
+
 var app = builder.Build();
 app.UseCors();
 
@@ -118,7 +135,7 @@ if( app.Environment.IsDevelopment() ) {
     app.UseSwagger();
     app.UseSwaggerUI( options => {
         options.EnablePersistAuthorization();
-    } );
+    });
 }
 
 app.UseAuthentication();
@@ -132,7 +149,5 @@ foreach(var controller in app.Services.GetServices<IController>()) {
 SampleController.MapRoutes(app);
 
 app.Run();
-
-
 
 public partial class Program { }

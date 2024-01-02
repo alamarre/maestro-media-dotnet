@@ -168,3 +168,15 @@ public record VideoCollectionItem : TenantTable {
     public Video? Video {get; set;}
 
 }
+
+[Index(nameof(VideoName), nameof(VideoType), IsUnique = true)]
+public record VideoTmdbMetadata : TenantTable {
+    [Key]
+    public Guid VideoMetadataId {get; set;}
+    
+    public string? VideoName {get; set;}
+
+    public VideoType VideoType {get; set;}
+
+    public long? TmdbId {get; set;}
+}

@@ -2,3 +2,4 @@ Migrations/
 bin
 obj
 .vs
+src/Generated/

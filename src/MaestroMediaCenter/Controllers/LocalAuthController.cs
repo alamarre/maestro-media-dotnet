@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Maestro.Auth;
-using Maestro.Models;
+using Maestro.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,23 +25,23 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
         Guid tenantId = Guid.NewGuid();
 
         var hashedPassword = GetHashedPassword(credentials.Password, 12);
-        var domainCreated = new TenantDomains {
+        var domainCreated = new TenantDomain {
             TenantId = tenantId,
             DomainName = domain
         };
-        var user = new AccountUsers
+        var user = new AccountUser
         {
             UserId = Guid.NewGuid(),
             TenantId = tenantId
             
         };
-        var emailRecord = new AccountEmails
+        var emailRecord = new AccountEmail
         {
             TenantId = tenantId,
             UserId = user.UserId,
             EmailAddress = credentials.Email
         };
-        var login = new AccountLogins
+        var login = new AccountLogin
         {
             TenantId = tenantId,
             UserId = user.UserId,
@@ -50,10 +50,10 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
             HashedPassword = hashedPassword
         };
         
-        db.TenantDomains.Add(domainCreated);
-        db.AccountUsers.Add(user);
-        db.AccountEmails.Add(emailRecord);
-        db.AccountLogins.Add(login);
+        db.TenantDomain.Add(domainCreated);
+        db.AccountUser.Add(user);
+        db.AccountEmail.Add(emailRecord);
+        db.AccountLogin.Add(login);
         int affectedRows = await db.SaveChangesAsync();
         if(affectedRows == 0) {
             return Results.Problem();
@@ -66,7 +66,7 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
     {
         
         using var db = await dbContextFactory.CreateDbContextAsync();
-        var loginInfo = await db.AccountLogins.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Username == credentials.Username);
+        var loginInfo = await db.AccountLogin.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Username == credentials.Username);
         if(loginInfo == null) {
             return Results.Unauthorized();
         }

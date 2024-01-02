@@ -1,5 +1,4 @@
-using Maestro.Database;
-using Maestro.Models;
+using Maestro.Entities;
 using Maestro.Services;
 using Microsoft.EntityFrameworkCore;
 

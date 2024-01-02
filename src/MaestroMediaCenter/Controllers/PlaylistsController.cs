@@ -1,5 +1,6 @@
+using System.Collections.Immutable;
 using Maestro.Auth;
-using Maestro.Models;
+using Maestro.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -7,6 +8,11 @@ using Microsoft.EntityFrameworkCore.Internal;
 namespace Maestro.Controllers;
 
 public class PlaylistsController(IUserContextProvider userContextProvider) : IController {
+
+    ImmutableDictionary<string, string> _properties = new Dictionary<string, string> {
+        { "EventId", "null" }
+    }.ToImmutableDictionary();
+    
     public IResult GetPlaylists(CancellationToken cancellationToken) {
         var context = userContextProvider.GetUserContext();
         if(context == null) {

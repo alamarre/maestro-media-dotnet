@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Maestro.Models;
+using Maestro.Entities;
 
 namespace Maestro.Utilities;
 
@@ -78,7 +78,10 @@ public class VideoUtilities
         return null;
     }
 
-    public IVideoInfo? GetVideoInfo(string path, string type, string rootUrl)
+    public IVideoInfo? GetVideoInfo(
+        string path, 
+        string type, 
+        string rootUrl)
     {
         if (path.StartsWith("/"))
         {

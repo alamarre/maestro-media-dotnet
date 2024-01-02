@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Maestro.Auth;
 using Maestro.Controllers;
+using Maestro.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -83,7 +84,7 @@ public class AppContext {
         var result = await _adminClient.SendAsync(request);
         result.EnsureSuccessStatusCode();
 
-        var tenantDomain = await db.TenantDomains.SingleAsync(x => x.DomainName == "localhost");
+        var tenantDomain = await db.TenantDomain.SingleAsync(x => x.DomainName == "localhost");
         var userContext = new UserContext (
             tenantDomain.TenantId,
             null,

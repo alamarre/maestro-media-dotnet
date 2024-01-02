@@ -1,3 +1,4 @@
+using Maestro.Entities;
 using Maestro.Models;
 using Maestro.Utilities;
 using MaestroMediaCenter.Auth;
@@ -5,8 +6,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Services;
-
-public record ShowProgress(string show, string? season, string episode, string status, int progress, long expires);
 
 public record VideoSourcesResponse(List<string> Sources, List<string> Subtitles);
 
@@ -29,12 +28,12 @@ public class VideoService(
         }
 
         if(videoInfo.VideoType == VideoType.Movie) {
-            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == videoInfo.Name && v.VideoType == videoInfo.VideoType);
+            var video = await db.Video.FirstOrDefaultAsync(v => v.VideoName == videoInfo.Name && v.VideoType == videoInfo.VideoType);
             if(video == null) {
                 return null;
             }
 
-            var sources = await db.VideoSources.Where(vs => vs.VideoId == video.VideoId).Include(v => v.VideoSourceRoot).ToListAsync();
+            var sources = await db.VideoSource.Where(vs => vs.VideoId == video.VideoId).Include(v => v.VideoSourceRoot).ToListAsync();
             var subtitles = sources.Where(s => s.Source.EndsWith(".vtt")).ToList();
             sources = sources.Where(s => !s.Source.EndsWith(".vtt")).ToList();
             var materializedSources = sources.Select(GetUri).ToList();
@@ -43,7 +42,7 @@ public class VideoService(
         }
 
         if(videoInfo.VideoType == VideoType.TvShow && videoInfo is TvShowInfo tvShowInfo) {
-            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == tvShowInfo.ShowName 
+            var video = await db.Video.FirstOrDefaultAsync(v => v.VideoName == tvShowInfo.ShowName 
             && v.VideoType == videoInfo.VideoType
             && v.Season == tvShowInfo.Season
             && v.Episode == tvShowInfo.Episode);
@@ -51,7 +50,7 @@ public class VideoService(
                 return null;
             }
 
-            var sources = await db.VideoSources.Where(vs => vs.VideoId == video.VideoId).Include(v => v.VideoSourceRoot).ToListAsync();
+            var sources = await db.VideoSource.Where(vs => vs.VideoId == video.VideoId).Include(v => v.VideoSourceRoot).ToListAsync();
             var subtitles = sources.Where(s => s.Source.EndsWith(".vtt")).ToList();
             sources = sources.Where(s => !s.Source.EndsWith(".vtt")).ToList();
             var materializedSources = sources.Select(GetUri).ToList();
@@ -61,7 +60,7 @@ public class VideoService(
         return null;
     }
 
-    private string GetUri(VideoSources videoSources) {
+    private string GetUri(VideoSource videoSources) {
         if(Uri.TryCreate(new Uri(videoSources.VideoSourceRoot!.VideoSourceRootPath),  videoSources.Source,  out var result)) {
             return result.ToString();
         }
@@ -69,7 +68,7 @@ public class VideoService(
         return "";
     }
 
-    public async Task<VideoSources?> AddSource(LocalVideoChange videoChange) {
+    public async Task<VideoSource?> AddSource(LocalVideoChange videoChange) {
         var videoInfo = videoUtilities.GetVideoInfo(videoChange.Path, videoChange.Type, videoChange.RootUrl);
         if(videoInfo == null) {
             return null;
@@ -77,21 +76,21 @@ public class VideoService(
         
         Guid newRootId = Guid.NewGuid();
         using var db = await dbContextFactory.CreateDbContextAsync();
-        VideoSources? videoSource = null;
+        VideoSource? videoSource = null;
         await db.ExecuteWithRetryAsync(async () => {
-            var root = await db.VideoSourceRoots.FirstOrDefaultAsync(r => r.VideoSourceRootPath == videoChange.RootUrl);
+            var root = await db.VideoSourceRoot.FirstOrDefaultAsync(r => r.VideoSourceRootPath == videoChange.RootUrl);
             if(root == null) {
-                root = new VideoSourceRoots {
+                root = new VideoSourceRoot {
                     VideoSourceRootId = newRootId,
                     VideoSourceRootPath = videoChange.RootUrl,
                     VideoSourceLocationType = VideoSourceLocationType.HttpSource
                 };
-                db.VideoSourceRoots.Add(root);
+                db.VideoSourceRoot.Add(root);
             }
 
-            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == videoInfo.Name && v.VideoType == videoInfo.VideoType);
+            var video = await db.Video.FirstOrDefaultAsync(v => v.VideoName == videoInfo.Name && v.VideoType == videoInfo.VideoType);
             if(video == null) {
-                video = new Videos {
+                video = new Video {
                     VideoId = Guid.NewGuid(),
                     VideoName = videoInfo.Name,
                     VideoType = videoInfo.VideoType
@@ -102,20 +101,20 @@ public class VideoService(
                     video.Season = tvShowInfo.Season;
                     video.Subname = tvShowInfo.Subname;
                 }
-                db.Videos.Add(video);
+                db.Video.Add(video);
             }
 
-            videoSource = await db.VideoSources.FirstOrDefaultAsync(vs => 
+            videoSource = await db.VideoSource.FirstOrDefaultAsync(vs => 
                 vs.VideoSourceRootId == root.VideoSourceRootId 
                 && vs.VideoId == video.VideoId 
                 && vs.Source == videoChange.Path);
             if(videoSource == null) {
-                videoSource = new VideoSources {
+                videoSource = new VideoSource {
                     VideoSourceRootId = root.VideoSourceRootId,
                     VideoId = video.VideoId,
                     Source = videoChange.Path
                 };
-                db.VideoSources.Add(videoSource);
+                db.VideoSource.Add(videoSource);
             }
         });
 
@@ -143,13 +142,16 @@ public class VideoService(
                 episode = show;
             }
 
-            var video = await db.Videos.FirstOrDefaultAsync(v => v.VideoName == show && v.VideoType == videoType, cancellationToken);
+            var video = await db.Video.FirstOrDefaultAsync(v => v.VideoName == show && v.VideoType == videoType, cancellationToken);
             if(video == null) {
                 return;
             }
 
             var profile = await userProfileProvider.GetUserProfileAsync(cancellationToken);
-            var watchProgress = await db.WatchProgress.FirstOrDefaultAsync(w => w.VideoId == video.VideoId && w.ProfileId == progress.profileId, cancellationToken);
+            if(profile == null) {
+                return;
+            }
+            var watchProgress = await db.WatchProgress.FirstOrDefaultAsync(w => w.VideoId == video.VideoId && w.ProfileId == profile!.ProfileId, cancellationToken);
             if(watchProgress == null) {
                 watchProgress = new WatchProgress {
                     VideoId = video.VideoId,
@@ -169,10 +171,15 @@ public class VideoService(
 
     private ShowProgress GetShowProgress(WatchProgress watchProgress) {
         if(watchProgress.Video!.VideoType == VideoType.TvShow) {
-            return new ShowProgress(watchProgress.Video.VideoName, watchProgress.Video.Season.ToString(), watchProgress.Video.Episode.ToString(), ç, watchProgress.ProgressInSeconds, watchProgress.Expires.Ticks);
+            return new ShowProgress(watchProgress.Video.VideoName, watchProgress.Video.Season.ToString(), watchProgress.Video.Episode.ToString()!, watchProgress.Status, watchProgress.ProgressInSeconds, watchProgress.Expires.Ticks);
         }
         string moviePath = $"Movies/{watchProgress.Video.VideoName}";
-        return new ShowProgress($"movie_{moviePath}", null, moviePath, watchProgress.Status, watchProgress.ProgressInSeconds, watchProgress.Expires.Ticks)
+        return new ShowProgress($"movie_{moviePath}", 
+        null, 
+        moviePath, 
+        watchProgress.Status, 
+        watchProgress.ProgressInSeconds, 
+        watchProgress.Expires.Ticks);
     }
  
 }

@@ -1,4 +1,4 @@
-using Maestro.Models;
+using Maestro.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Controllers;
@@ -6,7 +6,7 @@ namespace Maestro.Controllers;
 public class HomepageCollectionsController(IDbContextFactory<MediaDbContext> dbContextFactory) : IController {
     public async Task<IResult> ListCollections(CancellationToken cancellationToken) {
         using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var result = await db.VideoCollections.Select(x => new { 
+        var result = await db.VideoCollection.Select(x => new { 
             Name = x.VideoCollectionName, 
         StartDate = x.StartDate,
         EndDate = x.EndDate,
@@ -15,14 +15,14 @@ public class HomepageCollectionsController(IDbContextFactory<MediaDbContext> dbC
         return Results.Ok(result);
     }
 
-    private static bool IsVisible(VideoCollections collection) {
+    private static bool IsVisible(VideoCollection collection) {
         return true;
     }
 
     public async Task<IResult> GetCollectionItems(string collectionName, CancellationToken cancellationToken) {
         using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         
-        var videos = await db.VideoCollections
+        var videos = await db.VideoCollection
             .Where(vc => vc.VideoCollectionName == collectionName)
             .SelectMany(vc => vc.VideoCollectionItems)
             .Select(vci => vci.Video)

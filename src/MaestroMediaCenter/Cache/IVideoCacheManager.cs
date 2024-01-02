@@ -1,4 +1,4 @@
-using Maestro.Models;
+using Maestro.Entities;
 
 namespace Maestro.Cache;
 

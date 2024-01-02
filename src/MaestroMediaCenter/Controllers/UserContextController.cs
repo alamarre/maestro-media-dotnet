@@ -1,5 +1,5 @@
 using Maestro.Auth;
-using Maestro.Models;
+using Maestro.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;

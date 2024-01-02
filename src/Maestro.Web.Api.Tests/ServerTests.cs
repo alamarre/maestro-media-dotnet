@@ -1,4 +1,4 @@
-﻿using Maestro.Models;
+﻿using Maestro.Entities;
 using NUnit.Framework;
 using FluentAssertions;
 using Maestro.Controllers;

@@ -1,7 +1,8 @@
-using Maestro.Models;
+using Maestro.Entities;
 using NUnit.Framework;
 using FluentAssertions;
 using Maestro.Services;
+using Maestro.Models;
 
 namespace Maestro.Web.Api.Tests;
 
@@ -19,7 +20,7 @@ public class VideoSourcesTests {
             path
         ));
         result.EnsureSuccessStatusCode();
-        var responseBody = await result.Content.ReadFromJsonAsync<VideoSources>();
+        var responseBody = await result.Content.ReadFromJsonAsync<VideoSource>();
         responseBody.Should().NotBeNull();
         responseBody!.VideoId.Should().NotBeEmpty();
         responseBody.Source.Should().NotBeNullOrEmpty();
@@ -35,7 +36,7 @@ public class VideoSourcesTests {
             path
         ));
         result.EnsureSuccessStatusCode();
-        var responseBody = await result.Content.ReadFromJsonAsync<VideoSources>();
+        var responseBody = await result.Content.ReadFromJsonAsync<VideoSource>();
         responseBody.Should().NotBeNull();
         responseBody!.VideoId.Should().NotBeEmpty();
         responseBody.Source.Should().NotBeNullOrEmpty();
@@ -46,7 +47,7 @@ public class VideoSourcesTests {
             path
         ));
 
-        var secondResponseBody = await result2.Content.ReadFromJsonAsync<VideoSources>();
+        var secondResponseBody = await result2.Content.ReadFromJsonAsync<VideoSource>();
         secondResponseBody.Should().NotBeNull();
         secondResponseBody.Should().BeEquivalentTo(responseBody);
     }
@@ -63,7 +64,7 @@ public class VideoSourcesTests {
             path
         ));
         result.EnsureSuccessStatusCode();
-        var responseBody = await result.Content.ReadFromJsonAsync<VideoSources>();
+        var responseBody = await result.Content.ReadFromJsonAsync<VideoSource>();
         responseBody.Should().NotBeNull();
         responseBody!.VideoId.Should().NotBeEmpty();
         responseBody.Source.Should().NotBeNullOrEmpty();
@@ -92,7 +93,7 @@ public class VideoSourcesTests {
             path
         ));
         result.EnsureSuccessStatusCode();
-        var responseBody = await result.Content.ReadFromJsonAsync<VideoSources>();
+        var responseBody = await result.Content.ReadFromJsonAsync<VideoSource>();
         responseBody.Should().NotBeNull();
         responseBody!.VideoId.Should().NotBeEmpty();
         responseBody.Source.Should().NotBeNullOrEmpty();
@@ -125,7 +126,7 @@ public class VideoSourcesTests {
                 path
             ));
             result.EnsureSuccessStatusCode();
-            var responseBody = await result.Content.ReadFromJsonAsync<VideoSources>();
+            var responseBody = await result.Content.ReadFromJsonAsync<VideoSource>();
             responseBody.Should().NotBeNull();
             responseBody!.VideoId.Should().NotBeEmpty();
             responseBody.Source.Should().NotBeNullOrEmpty();

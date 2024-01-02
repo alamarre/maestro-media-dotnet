@@ -1,9 +1,10 @@
 using Maestro;
 using Maestro.Auth;
 using Maestro.Controllers;
-using Maestro.Database;
+using Maestro.Entities;
 using Maestro.Services;
 using Maestro.Utilities;
+using MaestroMediaCenter.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
@@ -87,22 +88,28 @@ builder.Services.AddDbContextFactory<MediaDbContext>(options => {
 
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
-builder.Services.AddSingleton(typeof(ITable<>),typeof(Table<>));
 builder.Services.AddSingleton<LocalSecurityTokenValidator>();
 builder.Services.AddSingleton<ICacheService, DbCacheSerice>();
+
+builder.Services.AddSingleton<ProfileService>();
 
 builder.Services.AddSingleton<VideoService>();
 builder.Services.AddSingleton<VideoUtilities>();
 
-builder.Services.AddSingleton<IController, VideosController>();
+new AutoControllers().MapControllers(builder.Services);
+/*builder.Services.AddSingleton<IController, VideosController>();
 builder.Services.AddSingleton<IController, PingController>();
 builder.Services.AddSingleton<IController, LocalAuthController>();
 builder.Services.AddSingleton<IController, VideoSourcesController>();
-builder.Services.AddSingleton<IController, ServersController>();
+builder.Services.AddSingleton<IController, ServersController>();*/
 
 UserContextSetter setter = new UserContextSetter();
 builder.Services.AddSingleton<IUserContextSetter>(setter);
 builder.Services.AddSingleton<IUserContextProvider>(setter);
+
+builder.Services.AddSingleton<IUserProfileProvider, UserProfileProvider>();
+
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 app.UseCors();
@@ -125,5 +132,7 @@ foreach(var controller in app.Services.GetServices<IController>()) {
 SampleController.MapRoutes(app);
 
 app.Run();
+
+
 
 public partial class Program { }

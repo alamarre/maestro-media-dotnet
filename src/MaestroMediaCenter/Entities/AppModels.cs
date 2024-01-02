@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Maestro.Models;
+namespace Maestro.Entities;
 
 public enum VideoType {
     None = 0,
@@ -24,15 +24,9 @@ public enum VideoSourceType {
     Subtitle = 2,
 }
 
-public record LocalVideoChange(
-    string Type, 
-    string RootUrl, 
-    string Path
-);
-
 [PrimaryKey(nameof(TenantId), nameof(DomainName))]
 [Index(nameof(DomainName), IsUnique = true)]
-public record TenantDomains
+public record TenantDomain
 {
 	public Guid TenantId { get; set; }
 	public string DomainName { get; set; } = string.Empty;
@@ -54,7 +48,7 @@ public record TenantTable {
     }
 };
 
-public record VideoSourceRoots : TenantTable {
+public record VideoSourceRoot : TenantTable {
     [Key]
     public Guid VideoSourceRootId {get; set;}
     public required string VideoSourceRootPath {get; set;}
@@ -62,7 +56,7 @@ public record VideoSourceRoots : TenantTable {
 }
 
 [Index("VideoSourceRootId", "Port", IsUnique = true)]
-public record VideoServerAlternates : TenantTable {
+public record VideoServerAlternate : TenantTable {
     [Key]
     public Guid VideoServerAlternateId {get; set;}
     public Guid VideoSourceRootId {get; set;}
@@ -72,7 +66,7 @@ public record VideoServerAlternates : TenantTable {
 
 [Index(nameof(AddedDate), nameof(VideoType))]
 [Index(nameof(VideoName), nameof(VideoType), nameof(Season), nameof(Episode), IsUnique = true)]
-public record Videos : TenantTable {
+public record Video : TenantTable {
     [Key]
     public Guid VideoId {get; set;}
     public required string VideoName {get; set;}
@@ -88,14 +82,14 @@ public record Videos : TenantTable {
     public DateTime AddedDate { get; set; }
 }
 
-public record VideoSources : TenantTable {
+public record VideoSource : TenantTable {
     [Key]
     public Guid VideoSourceId {get; set;}
-    [ForeignKey(nameof(VideoSourceRoots))]
+    [ForeignKey(nameof(Entities.VideoSourceRoot))]
     public Guid VideoSourceRootId {get; set;}
 
-    public VideoSourceRoots? VideoSourceRoot {get; set;}
-    [ForeignKey(nameof(Videos))]
+    public VideoSourceRoot? VideoSourceRoot {get; set;}
+    [ForeignKey(nameof(Video))]
     public Guid VideoId {get; set;}
     public required string Source {get; set;}
     public VideoSourceType VideoSourceType {get; set;}
@@ -103,11 +97,11 @@ public record VideoSources : TenantTable {
 
 [PrimaryKey(nameof(ProfileId), nameof(VideoId))]
 public record WatchProgress : TenantTable {
-    [ForeignKey(nameof(Videos))]
+    [ForeignKey(nameof(Entities.Video))]
     public Guid VideoId {get; set;}
 
-    public Videos? Video {get; set;}
-    [ForeignKey(nameof(Profiles))]
+    public Video? Video {get; set;}
+    [ForeignKey(nameof(Profile))]
     public Guid ProfileId {get; set;}
     public int ProgressInSeconds {get; set;}
     public required string Status {get; set;}
@@ -116,61 +110,61 @@ public record WatchProgress : TenantTable {
     public DateTime Expires {get; set;}
 }
 
-public record AccountUsers : TenantTable {
+public record AccountUser : TenantTable {
     [Key]
     public Guid UserId {get; set;}
 }
 
 [Index(nameof(EmailAddress), IsUnique = true)]
-public record AccountEmails : TenantTable {
+public record AccountEmail : TenantTable {
     [Key]
     public Guid EmailId {get; set;}
-    [ForeignKey(nameof(AccountUsers))]
+    [ForeignKey(nameof(AccountUser))]
     public Guid UserId {get; set;}
 
     public required string EmailAddress {get; set;}
 }
 
-public record AccountLogins : TenantTable {
+public record AccountLogin : TenantTable {
     [Key]
     public required string Username {get; set;}
 
-    [ForeignKey(nameof(AccountUsers))]
+    [ForeignKey(nameof(AccountUser))]
     public Guid UserId {get; set;}
     public required string HashedPassword {get; set;}
 
     public required int HashedPasswordPasses {get; set;}
 }
 
-public record Profiles : TenantTable {
+public record Profile : TenantTable {
     [Key]
     public Guid ProfileId {get; set;}
-    [ForeignKey(nameof(AccountUsers))]
+    [ForeignKey(nameof(AccountUser))]
     public Guid UserId {get; set;}
     public required string ProfileName {get; set;}
-    public required string ProfileImage {get; set;}
+    public string? ProfileImage {get; set;}
 }
 
-public record VideoCollections : TenantTable {
+public record VideoCollection : TenantTable {
     [Key]
     public Guid VideoCollectionId {get; set;}
-    [ForeignKey(nameof(AccountUsers))]
+    [ForeignKey(nameof(AccountUser))]
     public required string VideoCollectionName {get; set;}
 
     public DateTime StartDate {get; set;}
     public DateTime EndDate {get; set;}
 
-    public List<VideoCollectionItems> VideoCollectionItems {get; set;} = new List<VideoCollectionItems>();
+    public List<VideoCollectionItem> VideoCollectionItems {get; set;} = new List<VideoCollectionItem>();
 }
 
-public record VideoCollectionItems : TenantTable {
+public record VideoCollectionItem : TenantTable {
     [Key]
     public Guid VideoCollectionItemId {get; set;}
-    [ForeignKey(nameof(VideoCollections))]
+    [ForeignKey(nameof(VideoCollection))]
     public Guid VideoCollectionId {get; set;}
-    [ForeignKey(nameof(Videos))]
+    [ForeignKey(nameof(Entities.Video))]
     public Guid VideoId {get; set;}
 
-    public Videos? Video {get; set;}
+    public Video? Video {get; set;}
 
 }

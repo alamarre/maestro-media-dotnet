@@ -1,15 +1,14 @@
-using Maestro.Database;
+using Maestro.Entities;
 using Maestro.Models;
 using Maestro.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Controllers;
 
 public class VideoSourcesController(VideoService videoService) : IController {
 
     public async Task<IResult> AddSource(LocalVideoChange videoChange) {
-        VideoSources? response = await videoService.AddSource(videoChange);
+        VideoSource? response = await videoService.AddSource(videoChange);
 
         if(response == null) {
             return Results.Problem();

@@ -12,7 +12,9 @@ public static class DbSetExtensions {
                 {
                     await operation();
                     await context.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
+                    if(context.Database.CurrentTransaction != null) {
+                        await transaction.CommitAsync(cancellationToken);
+                    }
                     break; // Break from the loop on success
                 }
             }

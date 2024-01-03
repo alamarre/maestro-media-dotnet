@@ -11,6 +11,8 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  statuses: write
+  actions: read
 
 jobs:
   deploy:
@@ -55,6 +57,7 @@ jobs:
         workingDirectory: ./src/Maestro.Deploy.Aws
         terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
         githubToken: ${{ secrets.GITHUB_TOKEN }}
+        commentOnPr: false
     - name: Run Terraform CDK Plan
       uses: hashicorp/terraform-cdk-action@v1
       if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/main')

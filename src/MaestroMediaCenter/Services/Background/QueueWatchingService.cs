@@ -51,6 +51,8 @@ public sealed class QueueWatchingService(
                     continue;
                 }
                 await result;  
+
+                await eventReceiver.DeleteEvent(receivedEvent, stoppingToken);
             } catch(Exception ex) {
                 logger.LogError(ex, "Failed to process event");
             }      

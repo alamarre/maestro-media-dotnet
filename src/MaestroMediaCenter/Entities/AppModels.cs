@@ -75,7 +75,7 @@ public record Video : TenantTable {
     public string? Subname {get; set;}
     public required VideoType VideoType {get; set;}
 
-    // These could be replaced with a JSON object or another table in the future, but this is simpler for now
+    // These could be replaced with a JSON` object or another table in the future, but this is simpler for now
     public int? Season {get; set;}
     public int? Episode {get; set;}
 

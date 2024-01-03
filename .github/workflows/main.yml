@@ -10,13 +10,22 @@ on:
 permissions: write-all
 
 jobs:
-  deploy:
+  test-apis:
+    name: Test APIs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0'
+    - name: Test
+      run: dotnet test src/Maestro.Web.Api.Tests/Maestro.Web.Api.Tests.csproj --verbosity normal
+
+  plan-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
-    permissions:
-      id-token: write
-      contents: read
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -25,18 +34,10 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::990455710365:role/github-actions-Role-4CtDOaS7TEJR
         aws-region: us-east-1
-    - name: AWS credentials test
-      run: aws s3 ls s3://tfstate.omny.ca
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '8.0'
-    - name: Restore dependencies
-      run: dotnet restore src/MaestroMediaCenter.sln
-    - name: Build
-      run: dotnet build src/MaestroMediaCenter.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test src/MaestroMediaCenter.sln --no-restore --verbosity normal
     - name: Publish
       run: dotnet publish src/MaestroMediaCenter.sln --configuration Release --output ./publish
     - name: zip
@@ -72,4 +73,3 @@ jobs:
         githubToken: ${{ secrets.GITHUB_TOKEN }}
         commentOnPr: false
 
-     

@@ -1,3 +1,4 @@
+using Amazon.SQS;
 using Maestro;
 using Maestro.Auth;
 using Maestro.Controllers;
@@ -122,11 +123,24 @@ builder.Services.AddHttpContextAccessor();
 
 // local only, improve later
 
-builder.Services.AddSingleton<IEventPublisher, InMemoryEventPublisher>();
-builder.Services.AddSingleton<IEventReceiver>(serviceProvider => 
+if(builder.Configuration.GetSection(EventOptions.SectionName)?.GetValue<string>("SqsQueueUrl") != null) {
+    builder.Services.Configure<EventOptions>(builder.Configuration.GetSection("Events"));
+    builder.Services.AddSingleton<IEventPublisher, SqsEventPublisher>();
+    builder.Services.AddSingleton<IEventReceiver, SqsEventReceiver>();
+    builder.Services.AddSingleton<AmazonSQSClient>();
+} else {
+    builder.Services.AddSingleton<IEventPublisher, InMemoryEventPublisher>();
+    builder.Services.AddSingleton<IEventReceiver>(serviceProvider => 
             (InMemoryEventPublisher)serviceProvider.GetRequiredService<IEventPublisher>()  );
+}
+
+bool inAws = Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME") != null;
 builder.Services.AddSingleton<IEventProcessor, EventProcessor>();
-builder.Services.AddHostedService<QueueWatchingService>();
+if(!inAws) {
+    builder.Services.AddHostedService<QueueWatchingService>();
+} else {
+    builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
+}
 
 var app = builder.Build();
 app.UseCors();
@@ -147,6 +161,8 @@ foreach(var controller in app.Services.GetServices<IController>()) {
 }
 
 SampleController.MapRoutes(app);
+
+
 
 app.Run();
 

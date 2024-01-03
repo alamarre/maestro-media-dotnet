@@ -3,13 +3,20 @@ name: Main
 on:
   pull_request:
     branches: [ main ]
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
   push:
     branches: [ main ]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  statuses: write
+  actions: read
+
 jobs:
   deploy:
-    name: Upload to Amazon S3
+    name: Build and Deploy
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
     permissions:
@@ -23,6 +30,8 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::990455710365:role/github-actions-Role-4CtDOaS7TEJR
         aws-region: us-east-1
+    - name: AWS credentials test
+      run: aws s3 ls s3://tfstate.omny.ca
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
@@ -33,3 +42,32 @@ jobs:
       run: dotnet build src/MaestroMediaCenter.sln --configuration Release --no-restore
     - name: Test
       run: dotnet test src/MaestroMediaCenter.sln --no-restore --verbosity normal
+    - name: Publish
+      run: dotnet publish src/MaestroMediaCenter.sln --configuration Release --output ./publish
+    - name: zip
+      run: cd publish && zip -r ../MaestroMediaCenter.zip ./
+    - name: Run Terraform CDK Plan
+      uses: hashicorp/terraform-cdk-action@v1
+      if: github.event.pull_request.merged != true && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+      with:
+        cdktfVersion: 0.19.2
+        terraformVersion: 1.6.6
+        mode: plan-only
+        stackName: maestro-dotnet
+        workingDirectory: ./src/Maestro.Deploy.Aws
+        terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+        commentOnPr: false
+    - name: Run Terraform CDK Plan
+      uses: hashicorp/terraform-cdk-action@v1
+      if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      with:
+        cdktfVersion: 0.19.2
+        terraformVersion: 1.6.6
+        mode: auto-approve-apply
+        stackName: maestro-dotnet
+        workingDirectory: ./src/Maestro.Deploy.Aws
+        terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+     

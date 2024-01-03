@@ -26,7 +26,7 @@ jobs:
       uses: dorny/test-reporter@v1
       with:
         name: Maestro.Web.Api.Tests
-        path: test-results.trx
+        path: "**/test-results.trx"
         reporter: dotnet-trx
         token: ${{ secrets.GITHUB_TOKEN }}
         

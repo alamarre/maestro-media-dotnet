@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    name: Upload to Amazon S3
+    name: Build and Deploy
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint.
     permissions:
@@ -23,6 +23,8 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::990455710365:role/github-actions-Role-4CtDOaS7TEJR
         aws-region: us-east-1
+    - name: AWS credentials test
+      run: aws s3 ls s3://tfstate.omny.ca
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:

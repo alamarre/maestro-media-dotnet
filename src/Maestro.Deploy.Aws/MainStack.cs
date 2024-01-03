@@ -128,6 +128,21 @@ namespace Maestro.MyApp
                 {"CONNECTION_STRING", Environment.GetEnvironmentVariable("CONNECTION_STRING")},
                 {"Metadata__TmdbKey", Environment.GetEnvironmentVariable("Metadata__TmdbKey")}
             };
+            Dictionary<string,string> sensitiveVariables = new ();
+            foreach(var key in keyVariables.Keys)
+            {
+                var sensitive = new TerraformVariable(this, $"maestro-sensitive-value-{key.ToLower()}", new TerraformVariableConfig
+                {
+                    Type = "string",
+                    Default = keyVariables[key],
+                    Sensitive = true
+                });
+                sensitiveVariables.Add(key, sensitive.StringValue);
+            }
+
+            //var sensitiveVariables = keyVariables;//(Dictionary<string,string>)sensitiveValues.Value;
+
+            
             var lambdaFunction = new LambdaFunction(this, "maestro-web-dotnet", new LambdaFunctionConfig
             {
                 Runtime = "dotnet6", 
@@ -138,9 +153,13 @@ namespace Maestro.MyApp
                 Handler = "MaestroMediaCenter",
                 Environment = new LambdaFunctionEnvironment
                 {
-                    Variables = keyVariables
+                    Variables = sensitiveVariables
+
+
                 }
             });
+
+            
 
             var eventHandler = new LambdaFunction(this, "maestro-events-dotnet-lambda", new LambdaFunctionConfig
             {
@@ -152,7 +171,7 @@ namespace Maestro.MyApp
                 FunctionName = "maestro-event-dotnet-lambda",
                 Environment = new LambdaFunctionEnvironment
                 {
-                    Variables = keyVariables
+                    Variables = sensitiveVariables
                 }
             });
 

@@ -1,6 +1,6 @@
 {
   "language": "csharp",
-  "app": "dotnet run -p Maestro.Deploy.Aws.csproj",
+  "app": "dotnet run --project Maestro.Deploy.Aws.csproj",
   "projectId": "5f0cba8c-e3ae-49f8-90cc-55ad4825cb5f",
   "sendCrashReports": "true",
   "terraformProviders": [],

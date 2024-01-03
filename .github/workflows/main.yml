@@ -21,7 +21,15 @@ jobs:
       with:
         dotnet-version: '8.0'
     - name: Test
-      run: dotnet test src/Maestro.Web.Api.Tests/Maestro.Web.Api.Tests.csproj --verbosity normal
+      run: dotnet test src/Maestro.Web.Api.Tests/Maestro.Web.Api.Tests.csproj --verbosity normal --logger "trx;LogFileName=test-results.trx" || true
+    - name: Report Test Results
+      uses: dorny/test-reporter@v1
+      with:
+        name: Maestro.Web.Api.Tests
+        path: test-results.trx
+        reporter: dotnet-trx
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
 
   plan-and-deploy:
     name: Build and Deploy

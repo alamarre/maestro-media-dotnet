@@ -45,6 +45,7 @@ jobs:
         terraformVersion: 1.6.6
         mode: plan-only
         stackName: maestro-dotnet
+        workingDirectory: ./src/Maestro.Deploy.Aws
         terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - name: Run Terraform CDK Plan
@@ -55,6 +56,7 @@ jobs:
         terraformVersion: 1.6.6
         mode: auto-approve-apply
         stackName: maestro-dotnet
+        workingDirectory: ./src/Maestro.Deploy.Aws
         terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
         githubToken: ${{ secrets.GITHUB_TOKEN }}
 

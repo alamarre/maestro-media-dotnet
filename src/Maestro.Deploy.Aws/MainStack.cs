@@ -121,6 +121,13 @@ namespace Maestro.MyApp
                 }"
             });
 
+            Dictionary<string, string> keyVariables = new Dictionary<string, string>
+            {
+                {"Events__SqsQueueUrl", eventQueue.Url},
+                {"JWT_SECRET", Environment.GetEnvironmentVariable("JWT_SECRET")},
+                {"CONNECTION_STRING", Environment.GetEnvironmentVariable("CONNECTION_STRING")},
+                {"Metadata__TmdbKey", Environment.GetEnvironmentVariable("Metadata__TmdbKey")}
+            };
             var lambdaFunction = new LambdaFunction(this, "maestro-web-dotnet", new LambdaFunctionConfig
             {
                 Runtime = "dotnet6", 
@@ -131,21 +138,22 @@ namespace Maestro.MyApp
                 Handler = "MaestroMediaCenter",
                 Environment = new LambdaFunctionEnvironment
                 {
-                    Variables = new Dictionary<string, string>
-                    {
-                        {"Events__SqsQueueUrl", eventQueue.Url}
-                    }
+                    Variables = keyVariables
                 }
             });
 
             var eventHandler = new LambdaFunction(this, "maestro-events-dotnet-lambda", new LambdaFunctionConfig
             {
-                Runtime = "dotnet6", // Specify your .NET runtime
+                Runtime = "dotnet6", 
                 S3Bucket = webArchive.Bucket,
                 S3Key = webArchive.Key,
                 Handler = "MaestroMediaCenter",
                 Role = lambdaExecutionRole.Arn,
                 FunctionName = "maestro-event-dotnet-lambda",
+                Environment = new LambdaFunctionEnvironment
+                {
+                    Variables = keyVariables
+                }
             });
 
             var eventSourceMapping = new LambdaEventSourceMapping(this, "maestro-events-dotnet", new LambdaEventSourceMappingConfig

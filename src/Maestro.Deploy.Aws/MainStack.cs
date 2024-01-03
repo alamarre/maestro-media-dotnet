@@ -156,7 +156,7 @@ namespace Maestro.MyApp
                 }
             });
 
-            var eventSourceMapping = new LambdaEventSourceMapping(this, "maestro-events-dotnet", new LambdaEventSourceMappingConfig
+            new LambdaEventSourceMapping(this, "maestro-events-dotnet", new LambdaEventSourceMappingConfig
             {
                 EventSourceArn = eventQueue.Arn,
                 FunctionName = eventHandler.FunctionName

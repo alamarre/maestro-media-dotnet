@@ -55,9 +55,8 @@ jobs:
         mode: plan-only
         stackName: maestro-dotnet
         workingDirectory: ./src/Maestro.Deploy.Aws
-        terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
         githubToken: ${{ secrets.GITHUB_TOKEN }}
-        commentOnPr: false
+        commentOnPr: true
     - name: Run Terraform CDK Plan
       uses: hashicorp/terraform-cdk-action@v1
       if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/main')
@@ -67,7 +66,6 @@ jobs:
         mode: auto-approve-apply
         stackName: maestro-dotnet
         workingDirectory: ./src/Maestro.Deploy.Aws
-        terraformCloudToken: ${{ secrets.TF_API_TOKEN }}
         githubToken: ${{ secrets.GITHUB_TOKEN }}
 
      

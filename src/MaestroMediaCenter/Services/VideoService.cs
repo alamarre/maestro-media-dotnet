@@ -21,6 +21,18 @@ public class VideoService(
         return cacheService.GetCacheAsync();
     }
 
+    public async Task<List<Video>> GetRecent(string mediaType, CancellationToken cancellationToken) {
+        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        VideoType videoType = mediaType switch {
+            "videos" => VideoType.Movie,
+            "shows" => VideoType.TvShow,
+            _ => VideoType.Movie
+        };
+        return await db.Video.Where(v => v.VideoType == videoType)
+            .OrderByDescending(v => v.AddedDate)
+            .Take(20).ToListAsync(cancellationToken);
+    }
+
     public async Task<VideoSourcesResponse?> GetSourcesFromPath(string path) {
         using var db = await dbContextFactory.CreateDbContextAsync();
         var videoInfo = videoUtilities.GetVideoInfo(path);
@@ -68,6 +80,30 @@ public class VideoService(
         }
 
         return "";
+    }
+
+    public async Task DeleteSource(LocalVideoChange videoChange, CancellationToken cancellationToken = default) {
+        var videoInfo = videoUtilities.GetVideoInfo(videoChange.Path, videoChange.Type, videoChange.RootUrl);
+        if(videoInfo == null) {
+            return;
+        }
+
+        using var db = await dbContextFactory.CreateDbContextAsync();
+        await db.ExecuteWithRetryAsync(async () => {
+            var video = await db.Video.FirstOrDefaultAsync(v => v.VideoName == videoInfo.Name && v.VideoType == videoInfo.VideoType);
+            if(video == null) {
+                return;
+            }
+
+            var videoSource = await db.VideoSource.FirstOrDefaultAsync(vs => vs.VideoId == video.VideoId && vs.Source == videoChange.Path);
+            if(videoSource == null) {
+                return;
+            }
+
+            db.VideoSource.Remove(videoSource);
+            db.Video.Remove(video);
+            await db.SaveChangesAsync(cancellationToken);
+        });
     }
 
     public async Task<VideoSource?> AddSource(LocalVideoChange videoChange, CancellationToken cancellationToken = default) {

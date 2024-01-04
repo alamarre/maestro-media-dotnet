@@ -2,12 +2,19 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using Maestro.Core;
 using Maestro.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Maestro.Events;
 
 public class InMemoryEventPublisher(ILogger<InMemoryEventPublisher> logger) : IEventPublisher, IEventReceiver {
     
     ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+
+    Task IEventReceiver.DeleteEvent(ReceivedEvent @event, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
     Task IEventPublisher.Publish<T>(T @event, CancellationToken cancellationToken) {
         logger.LogInformation("Publishing event {Event}", @event);
         // retrieve the event ID from the attribute
@@ -40,7 +47,16 @@ public class InMemoryEventPublisher(ILogger<InMemoryEventPublisher> logger) : IE
             return result;
         }
 
-        result = AutoEventMapping.ConvertToReceivedMessage(JsonSerializer.Deserialize<EventMessage>(message));
+        if(message == null) {
+            return result;
+        }
+
+        var eventMessage = JsonSerializer.Deserialize<EventMessage>(message);
+        if(eventMessage == null) {
+            return result;
+        }
+
+        result = AutoEventMapping.ConvertToReceivedMessage(eventMessage);
         
         return result;
     }

@@ -10,13 +10,30 @@ on:
 permissions: write-all
 
 jobs:
-  deploy:
+  test-apis:
+    name: Test APIs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0'
+    - name: Test
+      run: dotnet test src/Maestro.Web.Api.Tests/Maestro.Web.Api.Tests.csproj --verbosity normal --logger "trx;LogFileName=test-results.trx" || true
+    - name: Report Test Results
+      uses: dorny/test-reporter@v1
+      with:
+        name: Maestro.Web.Api.Tests
+        path: "**/test-results.trx"
+        reporter: dotnet-trx
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+
+  plan-and-deploy:
     name: Build and Deploy
     runs-on: ubuntu-latest
-    # These permissions are needed to interact with GitHub's OIDC Token endpoint.
-    permissions:
-      id-token: write
-      contents: read
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -25,25 +42,27 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::990455710365:role/github-actions-Role-4CtDOaS7TEJR
         aws-region: us-east-1
-    - name: AWS credentials test
-      run: aws s3 ls s3://tfstate.omny.ca
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '8.0'
-    - name: Restore dependencies
+    - name: Dotnet Restore
       run: dotnet restore src/MaestroMediaCenter.sln
-    - name: Build
-      run: dotnet build src/MaestroMediaCenter.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test src/MaestroMediaCenter.sln --no-restore --verbosity normal
-    - name: Publish
-      run: dotnet publish src/MaestroMediaCenter.sln --configuration Release --output ./publish
+    - name: Publish Web
+      run: dotnet publish src/Maestro.Web/Maestro.Web.csproj --configuration Release --output ./publish/web
     - name: zip
-      run: cd publish && zip -r ../MaestroMediaCenter.zip ./
+      run: cd publish/web && zip -r ../../Maestro.Web.zip ./
+    - name: Publish Event Handler
+      run: dotnet publish src/Maestro.Events.Runner/Maestro.Events.Runner.csproj --configuration Release --output ./publish/event-lambda
+    - name: zip
+      run: cd publish/event-lambda && zip -r ../../Maestro.Events.Runner.zip ./
     - name: Run Terraform CDK Plan
       uses: hashicorp/terraform-cdk-action@v1
       if: github.event.pull_request.merged != true && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+      env:
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+        Metadata__TmdbKey: ${{ secrets.TMDB_KEY }}      
       with:
         cdktfVersion: 0.19.2
         terraformVersion: 1.6.6
@@ -51,10 +70,13 @@ jobs:
         stackName: maestro-dotnet
         workingDirectory: ./src/Maestro.Deploy.Aws
         githubToken: ${{ secrets.GITHUB_TOKEN }}
-        commentOnPr: false
     - name: Run Terraform CDK Plan
       uses: hashicorp/terraform-cdk-action@v1
       if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+      env:
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        CONNECTION_STRING: ${{ secrets.DB_CONNECTION_STRING }}
+        Metadata__TmdbKey: ${{ secrets.TMDB_KEY }}      
       with:
         cdktfVersion: 0.19.2
         terraformVersion: 1.6.6
@@ -62,6 +84,4 @@ jobs:
         stackName: maestro-dotnet
         workingDirectory: ./src/Maestro.Deploy.Aws
         githubToken: ${{ secrets.GITHUB_TOKEN }}
-        commentOnPr: false
 
-     

@@ -46,6 +46,8 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '8.0'
+    - name: Dotnet Restore
+      run: dotnet restore src/MaestroMediaCenter.sln
     - name: Publish Web
       run: dotnet publish src/Maestro.Web/Maestro.Web.csproj --configuration Release --output ./publish/web
     - name: zip

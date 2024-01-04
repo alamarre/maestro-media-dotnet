@@ -73,7 +73,7 @@ namespace Maestro.MyApp
                 Source = zipFilePath
             });
 
-             S3Object eventsArchive = new S3Object(this, "maestro-lambda-deploy-web", new S3ObjectConfig
+             S3Object eventsArchive = new S3Object(this, "maestro-lambda-deploy-events", new S3ObjectConfig
             {
                 Bucket = bucket.Bucket,
                 Key = $"maestro-events-deploy-{DateTime.Now.Ticks}.zip",

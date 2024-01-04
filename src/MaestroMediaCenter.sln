@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Analyzers", "Maestr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Deploy.Aws", "Maestro.Deploy.Aws\Maestro.Deploy.Aws.csproj", "{D5F7AFE0-940B-4EF3-BF2E-5D31B4BC8B32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Events.Runner", "Maestro.Events.Runner\Maestro.Events.Runner.csproj", "{E7DD640D-123B-4958-A4E5-92136DEFAB21}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web", "Maestro.Web\Maestro.Web.csproj", "{D861B033-03E5-42BA-9A7F-EE1FF77F5117}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{D5F7AFE0-940B-4EF3-BF2E-5D31B4BC8B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5F7AFE0-940B-4EF3-BF2E-5D31B4BC8B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5F7AFE0-940B-4EF3-BF2E-5D31B4BC8B32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7DD640D-123B-4958-A4E5-92136DEFAB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7DD640D-123B-4958-A4E5-92136DEFAB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7DD640D-123B-4958-A4E5-92136DEFAB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7DD640D-123B-4958-A4E5-92136DEFAB21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

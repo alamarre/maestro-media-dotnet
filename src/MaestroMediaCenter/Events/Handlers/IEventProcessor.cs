@@ -1,4 +1,5 @@
 using Maestro.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Maestro.Events.Handlers;
 

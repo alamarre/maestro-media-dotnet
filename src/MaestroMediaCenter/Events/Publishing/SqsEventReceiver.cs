@@ -2,6 +2,7 @@ using System.Text.Json;
 using Amazon.SQS;
 using Maestro.Models;
 using Maestro.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Maestro.Events;

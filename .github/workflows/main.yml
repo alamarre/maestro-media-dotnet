@@ -46,10 +46,14 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '8.0'
-    - name: Publish
-      run: dotnet publish src/MaestroMediaCenter.sln --configuration Release --output ./publish
+    - name: Publish Web
+      run: dotnet publish src/Maestro.Web/Maestro.Web.csproj --configuration Release --output ./publish/web
     - name: zip
-      run: cd publish && zip -r ../MaestroMediaCenter.zip ./
+      run: cd publish/web && zip -r ../Maestro.Web.zip ./
+    - name: Publish Event Handler
+      run: dotnet publish src/Maestro.Events.Runner/Maestro.Events.Runner.csproj --configuration Release --output ./publish/event-lambda
+    - name: zip
+      run: cd publish/event-lambda && zip -r ../Maestro.Events.Runner.zip ./
     - name: Run Terraform CDK Plan
       uses: hashicorp/terraform-cdk-action@v1
       if: github.event.pull_request.merged != true && !(github.event_name == 'push' && github.ref == 'refs/heads/main')

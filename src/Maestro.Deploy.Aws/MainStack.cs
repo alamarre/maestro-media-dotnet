@@ -43,21 +43,27 @@ namespace Maestro.MyApp
             // get directory of the application
             var start = AppContext.BaseDirectory;
             var parent = new System.IO.DirectoryInfo(start);
-            string zipFileName = "MaestroMediaCenter.zip";
+            string zipFileName = "Maestro.Web.zip";
             
             // check if file exists
-            while (parent.Exists && parent != parent.Root && !File.Exists(Path.Combine(parent.FullName, zipFileName)))
+            while (parent != null && parent.Exists && parent != parent.Root && !File.Exists(Path.Combine(parent.FullName, zipFileName)))
             {
                 parent = parent.Parent;
             }
 
-            string zipFilePath = Path.Combine(parent.FullName, zipFileName);
+            string zipFilePath = Path.Combine(parent!.FullName, zipFileName);
             if (!File.Exists(zipFilePath))
             {
                 throw new Exception("Could not find publish zip");
             }
             // convert zipFilePath to absolute
             zipFilePath = Path.GetFullPath(zipFilePath);
+
+            var eventZipFilePath = Path.Combine(parent!.FullName, "Maestro.Events.Runner.zip");
+            if (!File.Exists(eventZipFilePath))
+            {
+                throw new Exception("Could not find events zip");
+            }
             
 
             S3Object webArchive = new S3Object(this, "maestro-lambda-deploy-web", new S3ObjectConfig
@@ -65,6 +71,13 @@ namespace Maestro.MyApp
                 Bucket = bucket.Bucket,
                 Key = $"maestro-web-deploy-{DateTime.Now.Ticks}.zip",
                 Source = zipFilePath
+            });
+
+             S3Object eventsArchive = new S3Object(this, "maestro-lambda-deploy-web", new S3ObjectConfig
+            {
+                Bucket = bucket.Bucket,
+                Key = $"maestro-events-deploy-{DateTime.Now.Ticks}.zip",
+                Source = eventZipFilePath
             });
 
             var lambdaExecutionRole = new IamRole(this, "maestro-web-role", new IamRoleConfig {
@@ -154,8 +167,6 @@ namespace Maestro.MyApp
                 Environment = new LambdaFunctionEnvironment
                 {
                     Variables = sensitiveVariables
-
-
                 }
             });
 
@@ -164,8 +175,8 @@ namespace Maestro.MyApp
             var eventHandler = new LambdaFunction(this, "maestro-events-dotnet-lambda", new LambdaFunctionConfig
             {
                 Runtime = "dotnet6", 
-                S3Bucket = webArchive.Bucket,
-                S3Key = webArchive.Key,
+                S3Bucket = eventsArchive.Bucket,
+                S3Key = eventsArchive.Key,
                 Handler = "MaestroMediaCenter",
                 Role = lambdaExecutionRole.Arn,
                 FunctionName = "maestro-event-dotnet-lambda",

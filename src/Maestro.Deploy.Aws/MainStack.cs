@@ -158,7 +158,7 @@ namespace Maestro.MyApp
             
             var lambdaFunction = new LambdaFunction(this, "maestro-web-dotnet", new LambdaFunctionConfig
             {
-                Runtime = "dotnet6", 
+                Runtime = "dotnet8", 
                 S3Bucket = webArchive.Bucket,
                 Role = lambdaExecutionRole.Arn,
                 S3Key = webArchive.Key,
@@ -174,7 +174,7 @@ namespace Maestro.MyApp
 
             var eventHandler = new LambdaFunction(this, "maestro-events-dotnet-lambda", new LambdaFunctionConfig
             {
-                Runtime = "dotnet6", 
+                Runtime = "dotnet8", 
                 S3Bucket = eventsArchive.Bucket,
                 S3Key = eventsArchive.Key,
                 Handler = "MaestroMediaCenter",

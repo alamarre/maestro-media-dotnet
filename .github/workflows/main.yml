@@ -51,11 +51,11 @@ jobs:
     - name: Configure Lambda tools
       run: dotnet tool install -g Amazon.Lambda.Tools
     - name: Publish Web
-      run: dotnet lambda package -pl src/Maestro.Web/Maestro.Web.csproj -c Release ./publish/web
+      run: dotnet lambda package -pl src/Maestro.Web/ -c Release ./publish/web
     - name: zip
       run: cd publish/web && zip -r ../../Maestro.Web.zip ./
     - name: Publish Event Handler
-      run: dotnet lambda package -pl src/Maestro.Events.Runner/Maestro.Events.Runner.csproj -c Release ./publish/event-lambda
+      run: dotnet lambda package -pl src/Maestro.Events.Runner/ -c Release ./publish/event-lambda
     - name: zip
       run: cd publish/event-lambda && zip -r ../../Maestro.Events.Runner.zip ./
     - name: Run Terraform CDK Plan

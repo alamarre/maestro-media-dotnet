@@ -163,7 +163,7 @@ namespace Maestro.MyApp
                 Role = lambdaExecutionRole.Arn,
                 S3Key = webArchive.Key,
                 FunctionName = "maestro-web-dotnet-lambda",
-                Handler = "MaestroMediaCenter",
+                Handler = "Maestro.Web",
                 Environment = new LambdaFunctionEnvironment
                 {
                     Variables = sensitiveVariables
@@ -177,7 +177,7 @@ namespace Maestro.MyApp
                 Runtime = "dotnet8", 
                 S3Bucket = eventsArchive.Bucket,
                 S3Key = eventsArchive.Key,
-                Handler = "MaestroMediaCenter",
+                Handler = "Maestro.Events.Runner",
                 Role = lambdaExecutionRole.Arn,
                 FunctionName = "maestro-event-dotnet-lambda",
                 Environment = new LambdaFunctionEnvironment

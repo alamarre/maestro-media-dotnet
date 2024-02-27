@@ -115,7 +115,7 @@ if(!inAws) {
     AutoEventHandlerMapping.MapEventHandlers(builder.Services);
     builder.Services.AddHostedService<QueueWatchingService>();
 } else {
-    builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
+    builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 }
 
 var app = builder.Build();

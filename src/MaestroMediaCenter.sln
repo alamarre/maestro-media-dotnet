@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Events.Runner", "Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web", "Maestro.Web\Maestro.Web.csproj", "{D861B033-03E5-42BA-9A7F-EE1FF77F5117}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web.Ui", "Maestro.Web.Ui\Maestro.Web.Ui.csproj", "{6355B2E8-BD2C-4F77-89AA-3A03230D742C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

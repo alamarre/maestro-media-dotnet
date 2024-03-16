@@ -5,3 +5,4 @@ obj
 src/Generated/
 publish/
 *.zip
+.idea

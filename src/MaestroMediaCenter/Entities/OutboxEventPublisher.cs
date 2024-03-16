@@ -1,4 +1,3 @@
-
 using Maestro.Events;
 using Maestro.Models;
 
@@ -11,6 +10,4 @@ public class OutboxEventPublisher(IEventPublisher eventPublisher) : IOutboxEvent
         var messages = outboxEvents.Select(x => new EventMessage(x.OutboxEventId, x.EventType, x.EventData)).ToList();
         await eventPublisher.Publish(messages, cancellationToken);
     }
-
-    
 }

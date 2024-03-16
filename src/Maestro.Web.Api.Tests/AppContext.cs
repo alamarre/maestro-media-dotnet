@@ -14,10 +14,11 @@ using TestContainers.Container.Database.PostgreSql;
 namespace Maestro.Web.Api.Tests;
 
 [SetUpFixture]
-public class AppContext {
+public class AppContext
+{
     private static PostgreSqlContainer? Container { get; set; }
 
-    private static WebApplicationFactory<Program>? App {get; set; }
+    private static WebApplicationFactory<Program>? App { get; set; }
 
     private static HttpClient? _adminClient;
     private static HttpClient? _client;
@@ -35,9 +36,7 @@ public class AppContext {
 
     public static string? LocalAdminToken { get; }
 
-    
 
-  
     [OneTimeSetUp]
     public async Task InitializeAsync()
     {
@@ -63,29 +62,26 @@ public class AppContext {
         var tokenizer = App.Services.GetRequiredService<LocalSecurityTokenValidator>();
         AdminToken = tokenizer.CreateToken(
             Guid.NewGuid(),
-            additionalClaims: new Dictionary<string, string> {
-                {"gadm", "true"}
-            },
+            additionalClaims: new Dictionary<string, string> { { "gadm", "true" } },
             secretKey: secretKey);
         Container = container;
-    
+
         string fakeUsername = "fakeadmin";
         string fakePassword = "fakepassword";
         var request = new HttpRequestMessage(HttpMethod.Post, "/tenant/localhost")
         {
-            Content = new StringContent(JsonSerializer.Serialize(new
-            {
-                email = "fake@example.com",
-                password = fakePassword,
-                username = fakeUsername
-            }), Encoding.UTF8, "application/json")
+            Content = new StringContent(
+                JsonSerializer.Serialize(new
+                {
+                    email = "fake@example.com", password = fakePassword, username = fakeUsername
+                }), Encoding.UTF8, "application/json")
         };
 
         var result = await _adminClient.SendAsync(request);
         result.EnsureSuccessStatusCode();
 
         var tenantDomain = await db.TenantDomain.SingleAsync(x => x.DomainName == "localhost");
-        var userContext = new UserContext (
+        var userContext = new UserContext(
             tenantDomain.TenantId,
             null,
             false,
@@ -102,7 +98,6 @@ public class AppContext {
                 fakePassword,
                 tenantDomain.TenantId
             )), Encoding.UTF8, "application/json")
-            
         };
 
         result = await client.SendAsync(loginRequest);

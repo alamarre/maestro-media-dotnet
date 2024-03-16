@@ -3,15 +3,14 @@ using Maestro.Entities;
 
 namespace Maestro.Utilities;
 
-
 public interface IVideoInfo
 {
     string? Path { get; }
-    string? TypeName {get;}
+    string? TypeName { get; }
 
     string Name { get; }
 
-    string? Subname {get;}
+    string? Subname { get; }
 
     VideoType VideoType { get; }
 }
@@ -23,7 +22,7 @@ public record MovieInfo : IVideoInfo
 
     public VideoType VideoType => VideoType.Movie;
 
-    public required string Name {get; init;}
+    public required string Name { get; init; }
 
     public string? Subname => null;
 }
@@ -45,28 +44,32 @@ public record TvShowInfo : IVideoInfo
 
 public class VideoUtilities
 {
-
     private static readonly Regex pattern1 = new Regex(@"(S[0-9]{2})?\s*EP?([0-9]{2})", RegexOptions.IgnoreCase);
     private static readonly Regex pattern2 = new Regex(@"[0-9]{1,2}x([0-9]{2})", RegexOptions.IgnoreCase);
     private static readonly Regex pattern3 = new Regex(@"(\s|[.])[1-9]([0-9]{2})(\s|[.])", RegexOptions.IgnoreCase);
     private static readonly Regex yearPattern = new Regex(@"(.*) [(]?([0-9]{4})[)]?$");
 
-    public IVideoInfo? GetVideoInfo(string internalPath) {
-        if(internalPath.StartsWith("/")) {
+    public IVideoInfo? GetVideoInfo(string internalPath)
+    {
+        if (internalPath.StartsWith("/"))
+        {
             internalPath = internalPath.Substring(1);
         }
 
         var splitPath = internalPath.Split("/");
         var category = splitPath[0];
-        if(category == "Movies") {
+        if (category == "Movies")
+        {
             return new MovieInfo { Path = internalPath, Name = Path.GetFileNameWithoutExtension(splitPath[1]) };
         }
 
-        if(category == "TV") {
+        if (category == "TV")
+        {
             var showName = splitPath[1];
             var season = GetSeasonNumber(splitPath[2]);
             var episode = GetEpisodeNumber(splitPath[3]);
-            return new TvShowInfo {
+            return new TvShowInfo
+            {
                 Path = internalPath,
                 ShowName = showName,
                 Season = season,
@@ -79,8 +82,8 @@ public class VideoUtilities
     }
 
     public IVideoInfo? GetVideoInfo(
-        string path, 
-        string type, 
+        string path,
+        string type,
         string rootUrl)
     {
         if (path.StartsWith("/"))
@@ -128,6 +131,7 @@ public class VideoUtilities
         {
             return int.Parse(match.Groups[0].Value);
         }
+
         return null;
     }
 
@@ -135,7 +139,7 @@ public class VideoUtilities
     {
         string? episodeNumber = null;
         Match result = pattern1.Match(episode);
-        
+
         if (!result.Success || result.Groups.Count != 3)
         {
             result = pattern2.Match(episode);
@@ -160,32 +164,36 @@ public class VideoUtilities
         {
             episodeNumber = result.Groups[2].Value;
         }
-        if(int.TryParse(episodeNumber, out int episodeNumberInt))
+
+        if (int.TryParse(episodeNumber, out int episodeNumberInt))
         {
             return episodeNumberInt;
         }
+
         return null;
     }
 
     public static int? ParseYear(string input)
     {
         Match match = yearPattern.Match(input);
-        if (match.Success && match.Groups.Count == 3 
-            && int.TryParse(match.Groups[2].Value, out int year))
+        if (match.Success && match.Groups.Count == 3
+                          && int.TryParse(match.Groups[2].Value, out int year))
         {
             return year;
         }
+
         return null;
     }
 
-    public static (string, int)? GetBaseNameAndYear(string input) {
+    public static (string, int)? GetBaseNameAndYear(string input)
+    {
         Match match = yearPattern.Match(input);
         if (match.Success && match.Groups.Count == 3
-        && int.TryParse(match.Groups[2].Value, out int year))
+                          && int.TryParse(match.Groups[2].Value, out int year))
         {
             return (match.Groups[1].Value, year);
         }
+
         return null;
     }
-
 }

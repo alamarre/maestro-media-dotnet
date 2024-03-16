@@ -2,7 +2,8 @@ using Maestro.Entities;
 
 namespace Maestro.Cache;
 
-public interface IVideoCacheManager {
+public interface IVideoCacheManager
+{
     Task AddMovieAsync(string name, string source);
 
     Task DeleteMovieAsync(string name, string source);

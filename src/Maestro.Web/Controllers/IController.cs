@@ -1,4 +1,6 @@
 namespace Maestro.Controllers;
-public interface IController {
+
+public interface IController
+{
     void MapRoutes(IEndpointRouteBuilder routes);
 }

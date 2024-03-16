@@ -15,7 +15,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddCors(options => {
+builder.Services.AddCors(options =>
+{
     options.AddDefaultPolicy(builder =>
     {
         builder.AllowAnyOrigin()
@@ -25,43 +26,36 @@ builder.Services.AddCors(options => {
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => {
-
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer",
+        new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please insert JWT withoute the Bearer prefix into field",
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = JwtBearerDefaults.AuthenticationScheme
+        });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        In = ParameterLocation.Header,
-        Description = "Please insert JWT withoute the Bearer prefix into field",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = JwtBearerDefaults.AuthenticationScheme
-    });
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement {
         {
             new OpenApiSecurityScheme
             {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
             },
             new string[] { }
         }
     });
-    options.AddServer(new OpenApiServer
-    {
-        Url = "/"
-    });
-    options.AddServer(new OpenApiServer
-    {
-        Url = "https://api.videos.omny.ca/"
-    });
+    options.AddServer(new OpenApiServer { Url = "/" });
+    options.AddServer(new OpenApiServer { Url = "https://api.videos.omny.ca/" });
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer("self", options => {
+    .AddJwtBearer("self", options =>
+    {
         options.SecurityTokenValidators.Clear();
-        options.SecurityTokenValidators.Add( new LocalSecurityTokenValidator());
+        options.SecurityTokenValidators.Add(new LocalSecurityTokenValidator());
     })
     .AddJwtBearer("external", options =>
     {
@@ -81,14 +75,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         );*/
     });
 
-builder.Services.AddAuthorization(options => {
+builder.Services.AddAuthorization(options =>
+{
     options.FallbackPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .AddAuthenticationSchemes("self", "external")
         .Build();
 });
 
-builder.Services.AddDbContextFactory<MediaDbContext>(options => {
+builder.Services.AddDbContextFactory<MediaDbContext>(options =>
+{
 });
 
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
@@ -111,19 +107,24 @@ builder.Services.AddHttpContextAccessor();
 
 bool inAws = Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME") != null;
 services.AddSingleton<IEventProcessor, EventProcessor>();
-if(!inAws) {
+if (!inAws)
+{
     AutoEventHandlerMapping.MapEventHandlers(builder.Services);
     builder.Services.AddHostedService<QueueWatchingService>();
-} else {
+}
+else
+{
     builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 }
 
 var app = builder.Build();
 app.UseCors();
 
-if( app.Environment.IsDevelopment() ) {
+if (app.Environment.IsDevelopment())
+{
     app.UseSwagger();
-    app.UseSwaggerUI( options => {
+    app.UseSwaggerUI(options =>
+    {
         options.EnablePersistAuthorization();
     });
 }
@@ -132,7 +133,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseUserContextProvider();
 
-foreach(var controller in app.Services.GetServices<IController>()) {
+foreach (var controller in app.Services.GetServices<IController>())
+{
     controller.MapRoutes(app);
 }
 
@@ -140,4 +142,6 @@ SampleController.MapRoutes(app);
 
 app.Run();
 
-public partial class Program { }
+public partial class Program
+{
+}

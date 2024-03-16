@@ -1,4 +1,6 @@
 namespace Maestro.Auth;
-public interface IUserContextSetter {
+
+public interface IUserContextSetter
+{
     void SetUserContext(UserContext userContext);
 }

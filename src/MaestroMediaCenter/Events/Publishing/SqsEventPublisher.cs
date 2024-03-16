@@ -11,9 +11,10 @@ public sealed class SqsEventPublisher(
     IOptions<Maestro.Options.EventOptions> options,
     ILogger<SqsEventPublisher> logger,
     AmazonSQSClient sqsClient
-    ) : IEventPublisher
+) : IEventPublisher
 {
     private readonly EventOptions eventOptions = options.Value;
+
     async Task IEventPublisher.Publish<T>(T @event, CancellationToken cancellationToken)
     {
         logger.LogInformation("Publishing event {Event}", @event);
@@ -21,10 +22,8 @@ public sealed class SqsEventPublisher(
         var message = AutoEventMapping.GetEventMessage(typeof(T), @event);
         //queue.Enqueue(JsonSerializer.Serialize(message));
         var json = JsonSerializer.Serialize(message);
-        var request = new Amazon.SQS.Model.SendMessageRequest {
-            QueueUrl = eventOptions.SqsQueueUrl,
-            MessageBody = json
-        };
+        var request =
+            new Amazon.SQS.Model.SendMessageRequest { QueueUrl = eventOptions.SqsQueueUrl, MessageBody = json };
         await sqsClient.SendMessageAsync(request, cancellationToken);
     }
 
@@ -33,12 +32,11 @@ public sealed class SqsEventPublisher(
         logger.LogInformation("Publishing {eventCount} events", events.Count);
         var messages = events.Select(e => AutoEventMapping.GetEventMessage(typeof(T), e));
         var serializedMessages = messages.Select(m => JsonSerializer.Serialize(m));
-        var request = new Amazon.SQS.Model.SendMessageBatchRequest {
+        var request = new Amazon.SQS.Model.SendMessageBatchRequest
+        {
             QueueUrl = eventOptions.SqsQueueUrl,
-            Entries = serializedMessages.Select((m, i) => new Amazon.SQS.Model.SendMessageBatchRequestEntry {
-                Id = i.ToString(),
-                MessageBody = m
-            }).ToList()
+            Entries = serializedMessages.Select((m, i) =>
+                new Amazon.SQS.Model.SendMessageBatchRequestEntry { Id = i.ToString(), MessageBody = m }).ToList()
         };
         return sqsClient.SendMessageBatchAsync(request, cancellationToken);
     }
@@ -47,12 +45,11 @@ public sealed class SqsEventPublisher(
     {
         logger.LogInformation("Publishing {eventCount} events", events.Count);
         var serializedMessages = events.Select(m => JsonSerializer.Serialize(m));
-        var request = new Amazon.SQS.Model.SendMessageBatchRequest {
+        var request = new Amazon.SQS.Model.SendMessageBatchRequest
+        {
             QueueUrl = eventOptions.SqsQueueUrl,
-            Entries = serializedMessages.Select((m, i) => new Amazon.SQS.Model.SendMessageBatchRequestEntry {
-                Id = i.ToString(),
-                MessageBody = m
-            }).ToList()
+            Entries = serializedMessages.Select((m, i) =>
+                new Amazon.SQS.Model.SendMessageBatchRequestEntry { Id = i.ToString(), MessageBody = m }).ToList()
         };
         return sqsClient.SendMessageBatchAsync(request, cancellationToken);
     }

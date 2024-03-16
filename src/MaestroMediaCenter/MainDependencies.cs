@@ -13,7 +13,8 @@ namespace Maestro;
 
 public static class MainDependencies
 {
-    public static void RegisterMainDependencies(IServiceCollection services, ConfigurationManager configurationManager) {
+    public static void RegisterMainDependencies(IServiceCollection services, ConfigurationManager configurationManager)
+    {
         services.AddSingleton<ICacheService, DbCacheSerice>();
         services.AddSingleton<ITransactionalOutboxEventProducer, TransactionalOutboxEventProducer>();
         services.AddSingleton<IOutboxEventPublisher, OutboxEventPublisher>();
@@ -27,15 +28,18 @@ public static class MainDependencies
         services.AddSingleton<IUserContextProvider>(setter);
         services.AddSingleton<IEventProcessor, EventProcessor>();
 
-        if(configurationManager.GetSection(EventOptions.SectionName)?.GetValue<string>("SqsQueueUrl") != null) {
+        if (configurationManager.GetSection(EventOptions.SectionName)?.GetValue<string>("SqsQueueUrl") != null)
+        {
             services.Configure<EventOptions>(configurationManager.GetSection("Events"));
             services.AddSingleton<IEventPublisher, SqsEventPublisher>();
             services.AddSingleton<IEventReceiver, SqsEventReceiver>();
             services.AddSingleton<AmazonSQSClient>();
-        } else {
+        }
+        else
+        {
             services.AddSingleton<IEventPublisher, InMemoryEventPublisher>();
-            services.AddSingleton<IEventReceiver>(serviceProvider => 
-                    (InMemoryEventPublisher)serviceProvider.GetRequiredService<IEventPublisher>()  );
+            services.AddSingleton<IEventReceiver>(serviceProvider =>
+                (InMemoryEventPublisher)serviceProvider.GetRequiredService<IEventPublisher>());
         }
     }
 }

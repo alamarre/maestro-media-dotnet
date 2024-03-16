@@ -11,8 +11,8 @@ namespace Maestro.MyApp
             App app = new App();
 
             new MainStack(app, "maestro-dotnet");
-            
-            
+
+
             app.Synth();
             Console.WriteLine("App synth complete");
         }

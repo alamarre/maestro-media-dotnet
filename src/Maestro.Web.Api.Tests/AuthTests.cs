@@ -10,11 +10,8 @@ public class AuthTests
     [Test]
     public async Task Login_InvalidCredentials_ReturnsUnauthorized()
     {
-        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login", new {
-            Username = "fakeuser",
-            Password = "fakepassword",
-            TenantId = Guid.NewGuid()
-        });
+        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login",
+            new { Username = "fakeuser", Password = "fakepassword", TenantId = Guid.NewGuid() });
 
         result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -22,11 +19,8 @@ public class AuthTests
     [Test]
     public async Task Login_WrongTenantId_ReturnsUnauthorized()
     {
-        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login", new {
-            Username = "fakeadmin",
-            Password = "fakepassword",
-            TenantId = Guid.NewGuid()
-        });
+        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login",
+            new { Username = "fakeadmin", Password = "fakepassword", TenantId = Guid.NewGuid() });
 
         result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -34,11 +28,8 @@ public class AuthTests
     [Test]
     public async Task Login_Correct_ReturnsValidToken()
     {
-        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login", new {
-            Username = "fakeadmin",
-            Password = "fakepassword",
-            TenantId = AppContext.ClientTenantId
-        });
+        var result = await AppContext.UnathenticatedClient.PostAsJsonAsync("/login",
+            new { Username = "fakeadmin", Password = "fakepassword", TenantId = AppContext.ClientTenantId });
 
         result.StatusCode.Should().Be(HttpStatusCode.OK);
         var token = await result.Content.ReadFromJsonAsync<UserToken>();

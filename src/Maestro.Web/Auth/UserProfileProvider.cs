@@ -5,20 +5,26 @@ using Microsoft.EntityFrameworkCore;
 namespace MaestroMediaCenter.Auth;
 
 public class UserProfileProvider(
-    IHttpContextAccessor httpContextAccessor, 
+    IHttpContextAccessor httpContextAccessor,
     IDbContextFactory<MediaDbContext> dbContextFactory,
     IUserContextProvider userContextProvider) : IUserProfileProvider
 {
     async Task<Profile?> IUserProfileProvider.GetUserProfileAsync(CancellationToken cancellationToken)
     {
-        if( httpContextAccessor.HttpContext == null || !httpContextAccessor.HttpContext.Request.Query.TryGetValue("profile", out var profileName)) {
+        if (httpContextAccessor.HttpContext == null ||
+            !httpContextAccessor.HttpContext.Request.Query.TryGetValue("profile", out var profileName))
+        {
             return null;
         }
+
         var user = userContextProvider.GetUserContext();
-        if(user == null) {
+        if (user == null)
+        {
             return null;
         }
+
         using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
-        return await db.Profile.FirstOrDefaultAsync(p => p.ProfileName == profileName && p.UserId == user.UserId, cancellationToken);
+        return await db.Profile.FirstOrDefaultAsync(p => p.ProfileName == profileName && p.UserId == user.UserId,
+            cancellationToken);
     }
 }

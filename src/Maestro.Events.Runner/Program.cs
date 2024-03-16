@@ -26,43 +26,53 @@ var processor = app.Services.GetRequiredService<IEventProcessor>();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
-MethodInfo? method = typeof(IEventProcessor).GetMethod(nameof(IEventProcessor.ProcessEvent), 
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+MethodInfo? method = typeof(IEventProcessor).GetMethod(nameof(IEventProcessor.ProcessEvent),
+    BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 
 // Start the application
-var lambdaBuilder = LambdaBootstrapBuilder.Create(async (SQSEvent @event, ILambdaContext context) => {
-    foreach(var message in @event.Records) {
+var lambdaBuilder = LambdaBootstrapBuilder.Create(async (SQSEvent @event, ILambdaContext context) =>
+{
+    foreach (var message in @event.Records)
+    {
         var body = message.Body;
         var eventMessage = JsonSerializer.Deserialize<EventMessage>(body);
-        if(eventMessage == null) {
+        if (eventMessage == null)
+        {
             throw new NotSupportedException("Could not deserialize event message");
         }
-        var receivedEvent = AutoEventMapping.ConvertToReceivedMessage(eventMessage) ;
-        if(receivedEvent == null) {
+
+        var receivedEvent = AutoEventMapping.ConvertToReceivedMessage(eventMessage);
+        if (receivedEvent == null)
+        {
             throw new NotSupportedException("Could not deserialize event message");
         }
 
         var eventType = AutoEventMapping.GetEventType(receivedEvent.EventTypeId);
-        if(eventType == null) {
+        if (eventType == null)
+        {
             logger.LogError("Event type not found: {EventTypeId}", receivedEvent.EventTypeId);
             throw new NotSupportedException("Could not deserialize event message");
         }
+
         var genericMethod = method!.MakeGenericMethod(eventType);
-        if(genericMethod == null) {
+        if (genericMethod == null)
+        {
             logger.LogError("Generic method not found: {EventTypeId}", receivedEvent.EventTypeId);
             throw new NotSupportedException("Could not deserialize event message");
         }
 
         CancellationToken cancellationToken = default;
-        var result = genericMethod.Invoke(processor, new object[] { receivedEvent.EventData, cancellationToken }) as Task;
-        
-        if(result == null) {
+        var result =
+            genericMethod.Invoke(processor, new object[] { receivedEvent.EventData, cancellationToken }) as Task;
+
+        if (result == null)
+        {
             logger.LogError("Failed to get task from runner {eventTypeId}", receivedEvent.EventTypeId);
             throw new NotSupportedException("Could not deserialize event message");
         }
+
         await result;
     }
-
 }, new DefaultLambdaJsonSerializer());
 
 await lambdaBuilder.Build().RunAsync();

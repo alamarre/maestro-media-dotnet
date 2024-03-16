@@ -3,13 +3,15 @@ using HashiCorp.Cdktf;
 using System;
 using System.Collections.Generic;
 
-namespace Maestro.MyApp{
+namespace Maestro.MyApp
+{
     // The tests below are example tests, you can find more information at
     // https://cdk.tf/testing
-    public class TestProgram{
-        
+    public class TestProgram
+    {
         [Fact]
-        public void myAppTest(){
+        public void myAppTest()
+        {
             Assert.True(true);
         }
 
@@ -38,5 +40,4 @@ namespace Maestro.MyApp{
         //    }) );
         //}
     }
-
 }

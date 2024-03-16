@@ -1,6 +1,8 @@
 using Maestro.Auth;
 
 namespace Maestro.Auth;
-public interface IUserContextProvider {
+
+public interface IUserContextProvider
+{
     UserContext? GetUserContext();
 }

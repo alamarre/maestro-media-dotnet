@@ -1,4 +1,5 @@
 namespace Maestro.Auth;
+
 public class UserContextSetter : IUserContextSetter, IUserContextProvider
 {
     private static readonly AsyncLocal<UserContext?> _userContext = new();

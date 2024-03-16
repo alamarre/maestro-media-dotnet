@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Maestro.Auth;
 
-public class UserContextMiddleware(RequestDelegate next, IUserContextSetter userContextSetter) {
-
-    public async Task InvokeAsync(HttpContext context) {
-        if(context.User == null) {
+public class UserContextMiddleware(RequestDelegate next, IUserContextSetter userContextSetter)
+{
+    public async Task InvokeAsync(HttpContext context)
+    {
+        if (context.User == null)
+        {
             await next(context);
             return;
         }
@@ -21,7 +23,7 @@ public class UserContextMiddleware(RequestDelegate next, IUserContextSetter user
 
         bool hasTenant = Guid.TryParse(tenantId, out Guid tenantIdGuid);
         bool hasUserId = Guid.TryParse(userIdString, out Guid userIdGuid);
-        if ( !globalAdmin && (!hasTenant || !hasUserId))
+        if (!globalAdmin && (!hasTenant || !hasUserId))
         {
             await next(context);
             return;

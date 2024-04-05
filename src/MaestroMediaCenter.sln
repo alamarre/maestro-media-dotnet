@@ -17,7 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Events.Runner", "Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web", "Maestro.Web\Maestro.Web.csproj", "{D861B033-03E5-42BA-9A7F-EE1FF77F5117}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web.Ui", "Maestro.Web.Ui\Maestro.Web.Ui.csproj", "{6355B2E8-BD2C-4F77-89AA-3A03230D742C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.ServiceDefaults", "Maestro.ServiceDefaults\Maestro.ServiceDefaults.csproj", "{73E7B0E1-0FA9-4E52-93D7-94ABA4967E30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.AppHost", "Maestro.AppHost\Maestro.AppHost.csproj", "{9686FA75-A7D3-4B80-9B60-65CBB6FF6E8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web.Ui", "Maestro.Web.Ui\Maestro.Web.Ui.csproj", "{5D7F57D3-45F6-4C9C-9397-6497A4FA352E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Maui", "Maestro.Maui\Maestro.Maui.csproj", "{7D1FF239-E92B-44BF-9557-3158D712CCCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +59,22 @@ Global
 		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D861B033-03E5-42BA-9A7F-EE1FF77F5117}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6355B2E8-BD2C-4F77-89AA-3A03230D742C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73E7B0E1-0FA9-4E52-93D7-94ABA4967E30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73E7B0E1-0FA9-4E52-93D7-94ABA4967E30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73E7B0E1-0FA9-4E52-93D7-94ABA4967E30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73E7B0E1-0FA9-4E52-93D7-94ABA4967E30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9686FA75-A7D3-4B80-9B60-65CBB6FF6E8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9686FA75-A7D3-4B80-9B60-65CBB6FF6E8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9686FA75-A7D3-4B80-9B60-65CBB6FF6E8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9686FA75-A7D3-4B80-9B60-65CBB6FF6E8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D7F57D3-45F6-4C9C-9397-6497A4FA352E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D7F57D3-45F6-4C9C-9397-6497A4FA352E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D7F57D3-45F6-4C9C-9397-6497A4FA352E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D7F57D3-45F6-4C9C-9397-6497A4FA352E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D1FF239-E92B-44BF-9557-3158D712CCCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D1FF239-E92B-44BF-9557-3158D712CCCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D1FF239-E92B-44BF-9557-3158D712CCCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D1FF239-E92B-44BF-9557-3158D712CCCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

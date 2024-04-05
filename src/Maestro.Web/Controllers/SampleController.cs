@@ -1,13 +1,13 @@
 namespace Maestro.Controllers;
 
-public static class SampleController
+public class SampleController : IController
 {
-    public static string Root()
+    private string Root()
     {
         return "Hello World!";
     }
 
-    public static void MapRoutes(IEndpointRouteBuilder routes)
+    public void MapRoutes(IEndpointRouteBuilder routes)
     {
         routes.MapGet("/", Root);
         routes.MapGet("/root", Root);

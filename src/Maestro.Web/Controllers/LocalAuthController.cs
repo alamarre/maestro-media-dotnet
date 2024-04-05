@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Google.Apis.Auth;
 using Maestro.Auth;
 using Maestro.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,7 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
     [AllowAnonymous]
     private async Task<IResult> CreateTenantWithAdminUser(string domain, [FromBody] TenantUserData credentials)
     {
-        using var db = dbContextFactory.CreateDbContext();
+        await using var db = await dbContextFactory.CreateDbContextAsync();
 
         Guid tenantId = Guid.NewGuid();
 
@@ -56,7 +57,7 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
     [AllowAnonymous]
     private async Task<IResult> Login([FromBody] Credentials credentials, LocalSecurityTokenValidator tokenValidator)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync();
+        await using var db = await dbContextFactory.CreateDbContextAsync();
         var loginInfo = await db.AccountLogin.IgnoreQueryFilters()
             .FirstOrDefaultAsync(x => x.Username == credentials.Username);
         if (loginInfo == null)
@@ -86,6 +87,43 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
     }
 
     [AllowAnonymous]
+    private async Task<IResult> GetTokenFromGoogle([FromBody] string token, Guid tenantId, LocalSecurityTokenValidator tokenValidator)
+    {
+        GoogleJsonWebSignature.Payload? payload = null;
+        try
+        {
+            // Validate the token and extract the payload
+            payload = await GoogleJsonWebSignature.ValidateAsync(token);
+        }
+        catch (InvalidJwtException)
+        {
+            // Handle the case where the token is invalid
+            Console.WriteLine("Invalid JWT Token.");
+        }
+        catch (Exception ex)
+        {
+            // Handle other errors
+            Console.WriteLine($"An error occurred while validating token: {ex.Message}");
+        }
+
+        if (payload == null || !payload.EmailVerified)
+        {
+            return Results.BadRequest();
+        }
+
+        string email = payload.Email;
+
+        Dictionary<string, string> additionalClaims = new Dictionary<string, string>();
+        additionalClaims.Add("tenantId", tenantId.ToString()!);
+        Guid userId = Guid.NewGuid();
+        
+        var jwt = tokenValidator.CreateToken(userId, additionalClaims);
+        
+        var responseObject = new UserToken(jwt, tenantId, userId);
+        return Results.Ok(responseObject);
+    }
+
+    [AllowAnonymous]
     private IResult CreateToken(Guid userId, string? secretKey, [FromBody] Dictionary<string, string> claims,
         IUserContextProvider userContextProvider, LocalSecurityTokenValidator tokenValidator)
     {
@@ -103,6 +141,7 @@ public class LocalAuthController(IDbContextFactory<MediaDbContext> dbContextFact
     {
         routes.MapPost("/tenant/{domain}", CreateTenantWithAdminUser);
         routes.MapPost("/login", Login);
+        routes.MapPost("/token/google/{tenantId}", GetTokenFromGoogle);
         routes.MapPost("/token/{userId}/{tenantId?}/{secretKey?}/", CreateToken);
     }
 

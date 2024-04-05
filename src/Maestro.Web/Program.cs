@@ -138,8 +138,6 @@ foreach (var controller in app.Services.GetServices<IController>())
     controller.MapRoutes(app);
 }
 
-SampleController.MapRoutes(app);
-
 app.Run();
 
 public partial class Program

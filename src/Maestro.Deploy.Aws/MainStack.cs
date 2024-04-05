@@ -180,6 +180,9 @@ namespace Maestro.MyApp
                 {
                     EventSourceArn = eventQueue.Arn, FunctionName = eventHandler.FunctionName
                 });
+
+            var bucketName = Environment.GetEnvironmentVariable("UI_BUCKET")!;
+            var uiBucket = new CloudfrontBucket(this, bucketName, "maestro-web-");
         }
     }
 }

@@ -1,0 +1,11 @@
+@page "/player/{type}/{id}"
+<h3>Player</h3>
+
+@code {
+    [Parameter]
+    public string? Type { get; set; }
+    
+    [Parameter]
+    public string? Id { get; set; }
+    
+}

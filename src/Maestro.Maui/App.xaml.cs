@@ -1,6 +1,5 @@
 ﻿using Android.Content;
 using Android.Gms.Auth.Api.SignIn;
-using Microsoft.Identity.Client;
 
 namespace Maestro.Maui;
 
@@ -14,7 +13,7 @@ public partial class App : Application
         MainPage = new MainPage();
     }
 
-    override protected async void OnStart()
+    protected override async void OnStart()
     {
         await LoginAsync();
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Auth0.OidcClient;
+using Microsoft.Extensions.Logging;
 
 namespace Maestro.Maui;
 

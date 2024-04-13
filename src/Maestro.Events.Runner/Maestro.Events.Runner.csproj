@@ -17,6 +17,6 @@
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.2.0"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MaestroMediaCenter\MaestroMediaCenter.csproj"/>
+    <ProjectReference Include="..\MaestroMediaCenter.Core\MaestroMediaCenter.Core.csproj" />
   </ItemGroup>
 </Project>

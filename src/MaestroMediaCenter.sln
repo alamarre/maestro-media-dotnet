@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaestroMediaCenter", "MaestroMediaCenter\MaestroMediaCenter.csproj", "{CF507CBB-3E64-4B5E-811A-C111D6D648D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaestroMediaCenter.Core", "MaestroMediaCenter.Core\MaestroMediaCenter.Core.csproj", "{CF507CBB-3E64-4B5E-811A-C111D6D648D1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web.Api.Tests", "Maestro.Web.Api.Tests\Maestro.Web.Api.Tests.csproj", "{618804AB-B151-4439-B23E-2C6BCC0E5C1E}"
 EndProject
@@ -23,9 +23,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.AppHost", "Maestro.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Web.Ui", "Maestro.Web.Ui\Maestro.Web.Ui.csproj", "{5D7F57D3-45F6-4C9C-9397-6497A4FA352E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Maui", "Maestro.Maui\Maestro.Maui.csproj", "{7D1FF239-E92B-44BF-9557-3158D712CCCA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaestroMediaCenter", "MaestroMediaCenter\MaestroMediaCenter.csproj", "{7D1FF239-E92B-44BF-9557-3158D712CCCA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Maestro.Components.Shared", "Maestro.Components.Shared\Maestro.Components.Shared.csproj", "{210D5CA1-440D-4374-80F5-CA15A4E63692}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aspire", "Aspire", "{D9FE5CD7-B9D9-4A0B-B4FB-E23FB87DA8DF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{A0CCB015-1969-4E93-B918-3FE0476E00A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,5 +91,12 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {49AD815C-1D09-4B82-A059-7D7FA1FAF85D}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9686FA75-A7D3-4B80-9B60-65CBB6FF6E8D} = {D9FE5CD7-B9D9-4A0B-B4FB-E23FB87DA8DF}
+		{73E7B0E1-0FA9-4E52-93D7-94ABA4967E30} = {D9FE5CD7-B9D9-4A0B-B4FB-E23FB87DA8DF}
+		{7D1FF239-E92B-44BF-9557-3158D712CCCA} = {A0CCB015-1969-4E93-B918-3FE0476E00A0}
+		{5D7F57D3-45F6-4C9C-9397-6497A4FA352E} = {A0CCB015-1969-4E93-B918-3FE0476E00A0}
+		{210D5CA1-440D-4374-80F5-CA15A4E63692} = {A0CCB015-1969-4E93-B918-3FE0476E00A0}
 	EndGlobalSection
 EndGlobal

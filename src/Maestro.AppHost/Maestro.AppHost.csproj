@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MaestroMediaCenter\MaestroMediaCenter.csproj" />
+      <ProjectReference Include="..\MaestroMediaCenter.Core\MaestroMediaCenter.Core.csproj" />
     </ItemGroup>
 
 </Project>

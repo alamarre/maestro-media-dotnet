@@ -9,10 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting" Version="8.0.0-preview.3.24105.21"/>
+        <PackageReference Include="Aspire.Hosting" />
+        <PackageReference Include="Aspire.Hosting.AppHost" />
+        <PackageReference Include="Aspire.Hosting.PostgreSQL" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Maestro.Web.Ui\Maestro.Web.Ui.csproj" />
+      <ProjectReference Include="..\Maestro.Web\Maestro.Web.csproj" />
       <ProjectReference Include="..\MaestroMediaCenter.Core\MaestroMediaCenter.Core.csproj" />
     </ItemGroup>
 

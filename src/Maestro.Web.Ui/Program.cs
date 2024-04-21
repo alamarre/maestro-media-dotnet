@@ -19,8 +19,6 @@ builder.Services.AddHttpClient("AuthenticatedClient", client => client.BaseAddre
 builder.Services.AddTransient(sp => 
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("AuthenticatedClient"));
 
-
-
 //builder.Services.Configure<OidcProviderOptions>("Oidc");
 builder.Services.AddOidcAuthentication(options =>
 {

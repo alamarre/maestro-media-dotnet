@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net8.0-android</TargetFramework>
@@ -60,14 +60,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Auth0.OidcClient.MAUI" Version="1.0.0" Condition="'$(TargetFramework)' == 'net8.0-android'" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="120.7.0.3" Condition="'$(TargetFramework)' == 'net8.0-android'" />
+        <PackageReference Include="Auth0.OidcClient.MAUI" Condition="'$(TargetFramework)' == 'net8.0-android'" />
+        <PackageReference Include="Microsoft.Maui.Controls" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+        <PackageReference Include="Xamarin.GooglePlayServices.Auth" Condition="'$(TargetFramework)' == 'net8.0-android'" />
         <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Condition="'$(TargetFramework)' == 'net8.0-android'">
-          <Version>1.6.2</Version>
         </PackageReference>
     </ItemGroup>
 

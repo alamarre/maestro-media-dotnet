@@ -87,8 +87,6 @@ builder.Services.AddDbContextFactory<MediaDbContext>(options =>
 {
 });
 
-builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
-
 var services = builder.Services;
 
 services.AddSingleton<LocalSecurityTokenValidator>();
@@ -114,7 +112,7 @@ if (!inAws)
 }
 else
 {
-    builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+    builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
 }
 
 var app = builder.Build();

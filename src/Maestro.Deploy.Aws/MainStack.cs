@@ -182,7 +182,7 @@ namespace Maestro.MyApp
                 });
 
             var bucketName = Environment.GetEnvironmentVariable("UI_BUCKET")!;
-            var uiBucket = new CloudfrontBucket(this, bucketName, "maestro-web-");
+            //var uiBucket = new CloudfrontBucket(this, bucketName, "maestro-web-");
         }
     }
 }

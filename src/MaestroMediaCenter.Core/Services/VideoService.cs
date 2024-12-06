@@ -24,7 +24,7 @@ public class VideoService(
 
     public async Task<List<Video>> GetRecent(string mediaType, CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         VideoType videoType = mediaType switch
         {
             "videos" => VideoType.Movie,
@@ -38,7 +38,7 @@ public class VideoService(
 
     public async Task<VideoSourcesResponse?> GetSourcesFromPath(string path)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync();
+        await using var db = await dbContextFactory.CreateDbContextAsync();
         var videoInfo = videoUtilities.GetVideoInfo(path);
 
         if (videoInfo == null)
@@ -106,7 +106,7 @@ public class VideoService(
             return;
         }
 
-        using var db = await dbContextFactory.CreateDbContextAsync();
+        await using var db = await dbContextFactory.CreateDbContextAsync();
         await db.ExecuteWithRetryAsync(async () =>
         {
             var video = await db.Video.FirstOrDefaultAsync(v =>
@@ -140,7 +140,7 @@ public class VideoService(
         }
 
         Guid newRootId = Guid.NewGuid();
-        using var db = await dbContextFactory.CreateDbContextAsync();
+        await using var db = await dbContextFactory.CreateDbContextAsync();
         VideoSource? videoSource = null;
         await db.ExecuteWithRetryAsync(async () =>
         {
@@ -196,7 +196,7 @@ public class VideoService(
 
     public async Task<List<ShowProgress>> GetShowProgressesAsync(CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var result = await db.WatchProgress.Include(w => w.Video).ToListAsync(cancellationToken);
 
         return result.Select(GetShowProgress).ToList();
@@ -204,7 +204,7 @@ public class VideoService(
 
     public async Task SaveShowProgressAsync(ShowProgress progress, CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         await db.ExecuteWithRetryAsync(async () =>
         {
             string show = progress.show;
@@ -251,7 +251,7 @@ public class VideoService(
                 watchProgress.Status = progress.status;
                 watchProgress.Expires = new DateTime(progress.expires);
             }
-        });
+        }, cancellationToken: cancellationToken);
     }
 
     private ShowProgress GetShowProgress(WatchProgress watchProgress)

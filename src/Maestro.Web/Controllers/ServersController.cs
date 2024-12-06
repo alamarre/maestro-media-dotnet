@@ -13,7 +13,7 @@ public class ServersController(IDbContextFactory<MediaDbContext> dbContextFactor
 {
     public async Task<IResult> ListServers(CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var result = await db.VideoServerAlternate.Select(a => new AlternateMediaServerLegacy(a.Hostname, a.Port))
             .ToListAsync();
         return Results.Ok(result);
@@ -21,7 +21,7 @@ public class ServersController(IDbContextFactory<MediaDbContext> dbContextFactor
 
     public async Task<IResult> CreateServer(AlternateMediaServer server, CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         await db.ExecuteWithRetryAsync(async () =>
         {
             var root = await db.VideoSourceRoot.FirstOrDefaultAsync(v => v.VideoSourceRootPath == server.OriginalUrl);

@@ -18,7 +18,7 @@ public class DbCacheSerice(IDbContextFactory<MediaDbContext> dbContextFactory) :
     public async Task<VideoCache> GetCacheAsync(CancellationToken cancellationToken = default)
     {
         // get videos from core table
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var videos = await db.Video.ToListAsync(cancellationToken);
 
         var tvShows = videos.Where(v => v.VideoType == VideoType.TvShow).ToList();

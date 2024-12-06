@@ -20,7 +20,7 @@ public sealed class MetadataService(
             return;
         }
 
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         TMDbClient client = new(metadataOptions.TmdbKey);
         var video = await db.Video.FindAsync(videoId);
         if (video is null)

@@ -112,10 +112,6 @@ if (!inAws)
     AutoEventHandlerMapping.MapEventHandlers(builder.Services);
     builder.Services.AddHostedService<QueueWatchingService>();
 }
-else
-{
-    builder.Services.AddAWSLambdaHosting(LambdaEventSource.RestApi);
-}
 
 var app = builder.Build();
 app.UseCors();
@@ -132,6 +128,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseUserContextProvider();
+app.MapControllers();
 
 foreach (var controller in app.Services.GetServices<IController>())
 {

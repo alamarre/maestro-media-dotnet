@@ -16,7 +16,7 @@ public class ProfileService(
             return new List<Profile>();
         }
 
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         return await db.Profile.Where(u => u.UserId == user.UserId).ToListAsync(cancellationToken);
     }
 
@@ -28,7 +28,7 @@ public class ProfileService(
             return;
         }
 
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var profile = new Profile { ProfileName = profileName, UserId = user.UserId.Value };
         await db.Profile.AddAsync(profile, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);

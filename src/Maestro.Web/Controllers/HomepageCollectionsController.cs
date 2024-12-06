@@ -7,7 +7,7 @@ public class HomepageCollectionsController(IDbContextFactory<MediaDbContext> dbC
 {
     public async Task<IResult> ListCollections(CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var result = await db.VideoCollection.Select(x => new
         {
             Name = x.VideoCollectionName, StartDate = x.StartDate, EndDate = x.EndDate, Visible = IsVisible(x)
@@ -22,7 +22,7 @@ public class HomepageCollectionsController(IDbContextFactory<MediaDbContext> dbC
 
     public async Task<IResult> GetCollectionItems(string collectionName, CancellationToken cancellationToken)
     {
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var videos = await db.VideoCollection
             .Where(vc => vc.VideoCollectionName == collectionName)

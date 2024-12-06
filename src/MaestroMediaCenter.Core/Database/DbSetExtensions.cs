@@ -10,7 +10,7 @@ public static class DbSetExtensions
         {
             try
             {
-                using (var transaction = await context.Database.BeginTransactionAsync(cancellationToken))
+                await using (var transaction = await context.Database.BeginTransactionAsync(cancellationToken))
                 {
                     await operation();
                     await context.SaveChangesAsync(cancellationToken);

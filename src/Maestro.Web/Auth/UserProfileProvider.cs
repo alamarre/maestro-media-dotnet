@@ -23,7 +23,7 @@ public class UserProfileProvider(
             return null;
         }
 
-        using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var db = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         return await db.Profile.FirstOrDefaultAsync(p => p.ProfileName == profileName && p.UserId == user.UserId,
             cancellationToken);
     }

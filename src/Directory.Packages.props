@@ -20,7 +20,7 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="FluentAssertions" Version="6.12.0" />
     <PackageVersion Include="Google.Apis.Auth" Version="1.67.0" />
-    <PackageVersion Include="HashiCorp.Cdktf.Providers.Aws" Version="19.7.0" />
+    <PackageVersion Include="HashiCorp.Cdktf.Providers.Aws" Version="19.46.0" />
     <PackageVersion Include="HashiCorp.Cdktf.Providers.Docker" Version="11.0.0" />
     <PackageVersion Include="IsExternalInit" Version="1.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.16" />

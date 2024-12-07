@@ -115,6 +115,8 @@ if (!inAws)
     builder.Services.AddHostedService<QueueWatchingService>();
 }
 
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+
 var app = builder.Build();
 app.UseCors();
 

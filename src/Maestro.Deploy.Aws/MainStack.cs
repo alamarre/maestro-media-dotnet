@@ -159,6 +159,8 @@ namespace Maestro.MyApp
                     S3Key = webArchive.Key,
                     FunctionName = "maestro-web-dotnet-lambda",
                     Handler = "Maestro.Web",
+                    MemorySize = 512,
+                    Timeout = 30,
                     Environment = new LambdaFunctionEnvironment { Variables = sensitiveVariables }
                 });
 
@@ -172,6 +174,8 @@ namespace Maestro.MyApp
                     Handler = "Maestro.Events.Runner",
                     Role = lambdaExecutionRole.Arn,
                     FunctionName = "maestro-event-dotnet-lambda",
+                    MemorySize = 512,
+                    Timeout = 30,
                     Environment = new LambdaFunctionEnvironment { Variables = sensitiveVariables }
                 });
 
